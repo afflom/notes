@@ -1,0 +1,49 @@
+MAKEFILE
+Commands available in the makefile
+build
+    This command is to generate the webassambly file from a go file, variable GO_FILE is for the name of the go file and DIRECTORY is the directory where it is located
+
+    make build-wasm GO_FILE=api.go DIRECTORY=html/components/file_explorer/pack/src
+server
+    This command is to start the server, variable DIRECTORY is to search or take that path as the root, there it will look for the index.html file
+
+    make server.go DIRECTORY=html
+setup
+    Ensure you are in a workspace, using VScode or some other IDE
+    navigate to the dashboard folder
+    make build GO_FILE=api.go DIRECTORY=html/apps/file_explorer
+    make build GO_FILE=oidc_login.go DIRECTORY=html/apps/oidc_login
+    go run server.go DIRECTORY=html
+    open hosted server (8080 by default)
+
+OIDC LOGIN
+Functionality
+    These calls and methods allow the app to login using google, retain a session, and obtain user information with a few clicks.
+Method calls
+    User login process
+        oidc_login main.wasm loaded
+            login and authLogin methods added to js
+        User clicks login button
+            index.js calls oidc_login methods
+                oidc_login makes an async call to main.wasm/login method
+                    login method performs a authCodeUrl call to google, validating via code verifier and challenge
+                    google returns a validation url and a code verifier, which is streamed back to index.js
+                code verifier is stored in a session cookie named qxqcv
+                index.js redirects to said google validation url 
+                    google requests user approval on their website
+                    google redirects back to qxq url, sending a code in the url params
+            index.js, now in possession of a code value, makes an async call to authLogin with the value of the qxqcv cookie
+                authLogin makes a call to getUserDataFromGoogle
+                    method performs an exchange call to google, using the code verifier value
+                        google checks the code verifier against the code they previously generated, and returns ok or error
+                    if ok, user is now formally logged into google, and therefore we reflect this on our client
+                    method requests user information from google
+            user information now obtained from google, available for qxq
+    Session login process
+        if qxqcv has a code stored, index.js makes an async call to authLogin
+            authLogin makes a call to getUserDataFromGoogle
+                method performs an exchange call to google, using the code verifier value
+                    google checks the code verifier against the code they previously generated, and returns ok or error
+                if ok, user is now formally logged into google, and therefore we reflect this on our client
+                method requests user information from google
+            user information now obtained from google, available for qxq

@@ -3,6 +3,7 @@
 \usepackage{hyperref}
 \usepackage{geometry}
 \geometry{a4paper, margin=1in}
+\newcommand{\Cl}{\mathrm{Cl}}
 
 \title{Mathematical Formalization of Universal Object Reference (UOR) -- Part II}
 \author{}
@@ -50,7 +51,7 @@
 
 \section{Lie Group Symmetry and Automorphisms}
 
-\subsection{Group Action on $M$ and Fibers}
+\subsection{Group Action on \texorpdfstring{$M$}{M} and Fibers}
 \begin{itemize}
     \item \textbf{Lifted Action of a Lie Group:} Let $G$ be a Lie group that acts smoothly on $M$ by isometries (i.e. diffeomorphisms that preserve the metric $g$). We denote the action as $G \times M \to M$, $(g, x) \mapsto g\cdot x$, where $g\cdot x$ is the image of $x$ under $g$. This action on the base manifold lifts naturally to an action on the Clifford bundle by bundle automorphisms. Specifically, for each $g \in G$, we have an induced map $\Phi(g): \mathcal{C} \to \mathcal{C}$ that covers the base action $g: M \to M$. The map $\Phi(g)$ on fibers is defined as an algebra isomorphism 
     \[

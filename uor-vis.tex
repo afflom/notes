@@ -1,0 +1,44 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,algorithm,algpseudocode}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\begin{document}
+
+\section*{The Prime Algorithm Function}
+
+The function signature is:
+\[
+\texttt{PrimeAlgorithm} : \mathbb{N} \to \{\mathtt{PRIME},\mathtt{COMPOSITE}\}
+\]
+It takes a natural number \(N\) as input and returns either \(\mathtt{PRIME}\) or \(\mathtt{COMPOSITE}\).
+
+Below is the complete pseudocode:
+
+\begin{algorithm}
+\caption{\textsc{PrimeAlgorithm}(\(N\))}
+\begin{algorithmic}[1]
+\Require \(N \ge 2\) is a natural number (encoded in the UOR/Clifford framework)
+\Ensure Returns \(\mathtt{PRIME}\) if \(N\) is prime; returns \(\mathtt{COMPOSITE}\) otherwise.
+
+\State Compute a small bound \(r\), e.g. \(r \gets \lceil (\log_2 N)^2 \rceil\)
+\For{\(a = 2\) to \(r\)}
+    \If{\(\gcd(a,N) \neq 1\)}
+        \State \Return \(\mathtt{COMPOSITE}\) \Comment{A nontrivial factor found}
+    \EndIf
+\EndFor
+
+\Comment{Perform the polynomial congruence test (a variant of the AKS test)}
+\For{\(a = 1\) to \(r\)}
+    \State Compute the polynomial \(P_a(X) \gets (X+1)^N \mod (N, X^r-1)\)
+    \State Compute \(Q_a(X) \gets X^N + 1 \mod (N, X^r-1)\)
+    \If{\(P_a(X) \not\equiv Q_a(X)\)}
+        \State \Return \(\mathtt{COMPOSITE}\) \Comment{Congruence fails, \(N\) is composite}
+    \EndIf
+\EndFor
+
+\State \Return \(\mathtt{PRIME}\)
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}

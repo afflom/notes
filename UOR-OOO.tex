@@ -1,0 +1,312 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,amsfonts}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{bm}
+\usepackage{cite}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{example}[theorem]{Example}
+
+\begin{document}
+
+%=========================================================
+% TITLE AND ABSTRACT
+%=========================================================
+
+\title{\textbf{Object-Oriented Ontology (OOO) Quadruple Object in the \\
+Universal Object Reference (UOR) Framework}\\[5pt]
+\large Main Text with Supplement}
+\author{}
+\date{}
+\maketitle
+
+\begin{abstract}
+This document unifies two complementary discussions:
+
+\textbf{(A)} A primary exposition on the \emph{Object-Oriented Ontology (OOO)} notion of the 
+quadruple object, recast in the \emph{Universal Object Reference (UOR)} framework.
+
+\textbf{(B)} A supplement addressing specific technical points about base-\(b\) expansions, 
+commutator norms, and gauge symmetries relevant to the OOO quadruple structure.
+
+The combined analysis demonstrates how OOO's four poles 
+(real object, sensual object, real qualities, sensual qualities) 
+can be formulated in a noncommutative Clifford-algebraic system, 
+with partial overlaps and commutators measuring “withdrawal” 
+and relational interplay.
+\end{abstract}
+
+\tableofcontents
+
+%=========================================================
+% MAIN TEXT: OOO QUADRUPLE OBJECT IN UOR
+%=========================================================
+
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Overview of Object-Oriented Ontology and the Quadruple Object}
+Object-Oriented Ontology interprets \emph{objects} as primary ontological entities 
+whose “withdrawn” core cannot be entirely reduced to human observation or 
+to their relations. In Graham Harman's formulation, each object is said to have 
+four aspects or “poles”:
+\begin{itemize}[itemsep=0pt]
+\item \textbf{Real Object (RO)}: the inaccessible essence,
+\item \textbf{Sensual Object (SO)}: the appearance or “phenomenal” side,
+\item \textbf{Real Qualities (RQ)}: features belonging to the object’s essence,
+\item \textbf{Sensual Qualities (SQ)}: features that appear or vanish 
+      under specific observational or relational conditions.
+\end{itemize}
+These four aspects are interrelated yet never collapse into a single, 
+fully transparent entity.
+
+\subsection{Universal Object Reference (UOR) Framework}
+The Universal Object Reference (UOR) framework proposes that all definable objects 
+and structures can be embedded into a finite-dimensional Clifford algebra (or a similar 
+$*$-algebra). Key elements include:
+\begin{itemize}[itemsep=0pt]
+\item \textbf{Stable idempotents} and prime irreducibles to represent “fundamental seeds,”
+\item \textbf{Base-$b$ expansions} that discretize coordinates or states at multiple scales,
+\item \textbf{Partial noncommutativity} capturing how certain objects or aspects 
+      do not commute (thus indicating “withdrawal” or irreducibility),
+\item \textbf{Possible gauge symmetries} or spin group actions 
+      that reorder subalgebra blocks.
+\end{itemize}
+In this framework, each “object” can be identified with certain projections or 
+idempotents in the algebra, along with transformations in subalgebras that represent 
+relational or observational vantage points.
+
+\subsection{Document Outline}
+Sections \ref{sec:quadObj}–\ref{sec:gauge} constitute the main exposition, 
+presenting a rigorous definition for the Quadruple Object within UOR, 
+and discussing “withdrawal” via commutators, partial overlaps, 
+and possible gauge-structured subalgebras for real vs.\ sensual qualities. 
+Then, Section \ref{sec:supplement} contains the supplement that addresses 
+specific feedback about base-$b$ expansions, explicit commutator norms, 
+and additional symmetries.
+
+%=========================================================
+% MAIN TEXT: DEFINING THE QUADRUPLE OBJECT
+%=========================================================
+
+\section{Defining the Quadruple Object in UOR}
+\label{sec:quadObj}
+
+\subsection{UOR Algebraic Basics}
+Let \(\mathcal{A}\) be a unital $*$-algebra, e.g.\ a finite-dimensional Clifford algebra 
+augmented by digit operators and possible gauge factors. In many UOR treatments:
+\begin{itemize}[itemsep=0pt]
+\item \textbf{Stable idempotents} $e\in \mathcal{A}$ represent “object seeds” 
+      that cannot be further decomposed under small perturbations,
+\item \textbf{Noncommutative geometry} ensures not all elements commute, 
+      reflecting that objects cannot be fully “transparent” to every subalgebra,
+\item \textbf{Digit expansions} $P_{d,k}$ provide a fractal or multi-scale 
+      approach to organizing states or coordinates.
+\end{itemize}
+
+\subsection{Formal Quadruple Object}
+\begin{definition}[Quadruple Object in UOR]
+A \emph{quadruple object} $Q\in \mathcal{A}^4$ is given by 
+\[
+Q = (\mathbf{RO}, \mathbf{SO}, \mathbf{RQ}, \mathbf{SQ}),
+\]
+where:
+\begin{enumerate}[itemsep=0pt,label=(\roman*)]
+\item \(\mathbf{RO}\) (Real Object) is a stable idempotent with 
+      significant noncommutativity to the ambient subalgebra, 
+      modeling the “withdrawn” essence,
+\item \(\mathbf{SO}\) (Sensual Object) is a projection or partial projector 
+      in a subalgebra $\mathcal{B}\subseteq \mathcal{A}$, representing the vantage 
+      or phenomenal domain; $\mathbf{SO}$ can partially overlap with $\mathbf{RO}$,
+\item \(\mathbf{RQ}\) (Real Qualities) commute (fully or in part) with $\mathbf{RO}$ 
+      but typically not with $\mathbf{SO}$, capturing latent or essential features 
+      that are not exhausted in any single relational stance,
+\item \(\mathbf{SQ}\) (Sensual Qualities) arise from or within $\mathbf{SO}$, 
+      do not generally commute with $\mathbf{RO}$, and correspond to 
+      the “relationally accessible” properties in a given vantage.
+\end{enumerate}
+\end{definition}
+
+%=========================================================
+% WITHDRAWAL AND PARTIAL OVERLAPS
+%=========================================================
+
+\section{Withdrawal and Partial Overlaps}
+\label{sec:withdrawal}
+
+\subsection{Commutators as “Withdrawal”}
+One hallmark of OOO is that real objects withdraw from total relational capture. 
+In UOR, we interpret this as the existence of non-zero commutators 
+$[\mathbf{RO},X]\neq0$ for many $X \in \mathcal{A}$. 
+If $\mathbf{RO}$ fully commuted with all $X$ in a relevant subalgebra, 
+the real object would be fully “transparent” there. Instead, 
+non-zero commutators signify “irreducibility” or “autonomy.”
+
+\subsection{Overlap of \(\mathbf{RO}\) and \(\mathbf{SO}\)}
+Partial overlap can be signaled by $\mathbf{RO}\,\mathbf{SO}\neq0$, 
+so that $\mathbf{SO}$ “contacts” the real object in some dimension. 
+If $\mathbf{RO}\,\mathbf{SO}=0$, the vantage sees none of the object’s essence. 
+Thus the measure $\mathrm{Tr}(\mathbf{RO}\,\mathbf{SO})$ or 
+$\|\mathbf{RO}\,\mathbf{SO}\|$ can quantify how strongly the real object 
+is “immanent” in that phenomenal domain.
+
+%=========================================================
+% EXAMPLES AND GAUGE
+%=========================================================
+
+\section{Examples and Gauge Symmetries}
+\label{sec:gauge}
+
+\subsection{Matrix Example}
+\begin{example}[Orthogonal or Overlapping Idempotents]
+In a $4\times4$ matrix algebra, we can define:
+\[
+\mathbf{RO} = \mathrm{diag}(1,1,0,0),\quad
+\mathbf{SO} = \mathrm{diag}(0,0,1,1).
+\]
+They are orthogonal: $\mathbf{RO}\,\mathbf{SO}=0$. 
+Hence no “sensual qualities” appear from the vantage associated with $\mathbf{SO}$. 
+Alternatively, if $\mathbf{SO} = \mathrm{diag}(1,0,1,0)$, partial overlap arises:
+\[
+\mathbf{RO}\,\mathbf{SO} 
+= 
+\mathrm{diag}(1,0,0,0),
+\]
+yielding a nonzero sub-block that can be interpreted as the “visible portion” 
+of the real object in that vantage.
+\end{example}
+
+\subsection{Gauge Symmetries}
+If $\mathcal{A}$ also includes gauge factors (e.g.\ $\mathrm{U}(1)\times \mathrm{SU}(2)\times \mathrm{SU}(3)$), 
+one can interpret $\mathbf{RQ}$ as gauge-invariant blocks (mass, topological numbers, etc.) 
+and $\mathbf{SQ}$ as gauge-transformed states that vary with vantage or internal symmetry. 
+Hence the object can appear differently in different frames while retaining 
+a stable “real core.”
+
+%=========================================================
+% SUPPLEMENT
+%=========================================================
+
+\section{Supplement: Further Clarifications}
+\label{sec:supplement}
+
+\subsection{Base-\texorpdfstring{\(b\)}{b} Expansions and Overlap}
+Choosing a larger base $b$ typically yields finer partitions of $\mathcal{A}$ 
+into digit operators $P_{d,k}$. This can \emph{increase} potential overlap 
+between $\mathbf{RO}$ and $\mathbf{SO}$, since the vantage domain sees 
+more granular details. A smaller $b$ lumps degrees of freedom, 
+often resulting in greater orthogonality or “withdrawal.” 
+Conceptually, $b$ might correlate with the “resolution” or “variety of categories” 
+in a vantage.
+
+\subsection{Explicit Commutator Norms Illustrating Withdrawal}
+Consider 
+\[
+\mathbf{RO} 
+= 
+\begin{pmatrix}
+1 & 0 & 0 & 0\\
+0 & 1 & 0 & 0\\
+0 & 0 & 0 & 0\\
+0 & 0 & 0 & 0
+\end{pmatrix},
+\quad
+X 
+=
+\begin{pmatrix}
+0 & 1 & 0 & 0\\
+1 & 0 & 0 & 0\\
+0 & 0 & 0 & 1\\
+0 & 0 & 1 & 0
+\end{pmatrix}.
+\]
+Their commutator $[\mathbf{RO},X]$ has nonzero off-diagonal blocks. 
+The operator norm of $[\mathbf{RO},X]$ can be computed 
+(e.g.\ largest singular value). The result measures how strongly 
+$\mathbf{RO}$ remains outside full assimilation by $X$. 
+In OOO terms, it indicates how the real object “resists” translation 
+into that operator’s vantage or relational domain.
+
+\subsection{Gauge Symmetries Structuring \texorpdfstring{\(\mathbf{RQ}\)}{RQ} and \texorpdfstring{\(\mathbf{SQ}\)}{SQ}
+}
+If we embed a gauge group in $\mathcal{A}$, “real qualities” might be gauge invariants 
+that do not transform, while “sensual qualities” vary under transformations 
+(e.g.\ color charge, flavor, or representation labels). This duality parallels 
+OOO’s claim that certain “inherent” aspects remain hidden, 
+while “phenomenal” aspects shift with vantage.
+
+%=========================================================
+% CONCLUSION
+%=========================================================
+
+\section{Conclusion and Future Directions}
+
+We have presented a unified explanation of how the \emph{Object-Oriented Ontology} 
+quadruple object (real object, sensual object, real qualities, sensual qualities) 
+can be concretely formalized in the \emph{Universal Object Reference} framework. 
+Key points include:
+\begin{itemize}[itemsep=0pt]
+\item \textbf{Stable Idempotents and Noncommutativity:} 
+  capturing “withdrawal” as commutator-based irreducibility,
+\item \textbf{Base-$b$ Expansions:} 
+  controlling how “coarse” or “fine” the vantage or relational domain is, 
+  thereby modulating overlap between real and sensual poles,
+\item \textbf{Gauge Symmetries:} 
+  clarifying how real qualities remain stable under transformations, 
+  while sensual qualities shift with vantage.
+
+\end{itemize}
+By illustrating these principles with matrix examples and subalgebra distinctions, 
+we unify philosophical claims of OOO with a rigorous algebraic architecture. 
+This invites further applications, such as modeling how objects appear in 
+physical theories, how “withdrawing” aspects relate to gauge-invariant properties, 
+and whether base-$b$ expansions might correlate with hierarchical observational 
+or conceptual frameworks in metaphysics and epistemology.
+
+\bigskip
+
+%=========================================================
+% BIBLIOGRAPHY
+%=========================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{HarmanQuadruple}
+G.~Harman, 
+\emph{The Quadruple Object}, 
+Zero Books, 2011.
+
+\bibitem{BryantOOO}
+L.~Bryant, 
+\emph{The Democracy of Objects}, 
+Open Humanities Press, 2011.
+
+\bibitem{MortonOOO}
+T.~Morton, G.~Harman, et al., 
+\emph{Object-Oriented Ontology: A Symposium}, 
+Phil. Compass \textbf{14} (2019).
+
+\bibitem{LounestoClifford}
+P.~Lounesto,
+\emph{Clifford Algebras and Spinors},
+2nd ed., Cambridge University Press, 2001.
+
+\bibitem{Connes}
+A.~Connes,
+\emph{Noncommutative Geometry},
+Academic Press, 1994.
+
+\bibitem{UORPaper}
+UOR Collaboration,
+\emph{Universal Object Reference (UOR): Algebraic Embeddings of Definable Domains},
+(preprint, 2025).
+
+\end{thebibliography}
+
+\end{document}

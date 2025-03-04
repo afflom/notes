@@ -8,7 +8,8 @@
 \setlength{\parindent}{0pt}
 
 \title{P vs NP Separation in the Universal Object Reference (UOR) Framework - Part 1}
-\date{}
+\author{The UOR Foundation}
+\date{\today}
 
 \begin{document}
 \maketitle
@@ -182,7 +183,7 @@ Assuming \(P=NP\) led us to assert the existence of a polynomial-step UOR solver
 
 Thus, either scenario leads to an impossibility under the assumption \(P=NP\). The only logical conclusion is that our initial assumption must be wrong. Therefore, \(P \neq NP\).
 
-\section{Conclusion: P vs NP Resolved (\(P \neq NP\))}
+\section{Conclusion: P vs NP Resolved (\texorpdfstring{$P \neq NP$}{P != NP})}
 By constructing the decision problem framework inside UOR from first principles and analyzing the structural requirements for solving versus verifying, we have found that the ability to verify solutions efficiently does not imply the ability to find solutions efficiently. In the formal contradiction above, we leveraged the UOR model to show that a hypothetical polynomial-time solver would violate coherence constraints or require an unachievable coverage of an exponentially large solution space. Consequently, within the rigorously defined UOR system, we conclude that problems in NP in general cannot be solved by any polynomial-time (P) procedure unless a collapse of logical structure occurs. In short:
 \[
 P \subsetneq NP.

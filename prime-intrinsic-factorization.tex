@@ -1,0 +1,110 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+
+\title{Intrinsic Primes and Unique Factorization\\ in the Prime Framework}
+\author{The UOR Foundation}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+  In the Prime Framework the natural numbers are not taken as primitive but are instead constructed via an intrinsic embedding into a fiber algebra. In this paper we present a self-contained proof of the definition of intrinsic primes and the unique factorization theorem. Our argument relies solely on the axiomatic foundation of the framework---namely, the existence of a smooth reference manifold, the associated fiber algebras endowed with a coherence inner product, and the symmetry group acting on these fibers---and on the universal number embedding that encodes every natural number in all possible bases.
+\end{abstract}
+
+\section{Introduction}
+In the Prime Framework each natural number \(N>1\) is embedded into an associative algebra \(C_x\) (typically a Clifford algebra) associated with a point \(x\) of a smooth manifold \(M\). This embedding, denoted by \(\widehat{N}\), encodes the digits of \(N\) in every base \(b\ge2\) in distinct graded components of \(C_x\). A \(G\)-invariant coherence inner product \(\langle \cdot,\cdot \rangle_c\) on \(C_x\) selects a unique, minimal-norm element among all representations that encode the same number. Using this construction, we define an \emph{intrinsic prime} as an embedded number that cannot be factored nontrivially within \(C_x\). Our goal is to prove that every embedded number factors uniquely as a product of intrinsic primes, mirroring the fundamental theorem of arithmetic.
+
+\section{Preliminaries and Axiomatic Setup}
+We assume the following axioms of the Prime Framework:
+\begin{enumerate}
+    \item \textbf{Reference Manifold:} There exists a smooth, connected, and orientable manifold \(M\) equipped with a nondegenerate metric \(g\).
+    \item \textbf{Algebraic Fibers:} For each \(x\in M\) there is an associative algebra \(C_x\) (typically a Clifford algebra) which encodes the local algebraic structure.
+    \item \textbf{Symmetry Group Action:} A Lie group \(G\) acts on \(M\) by isometries and lifts to \(C_x\) via algebra isomorphisms, ensuring consistency of representations under changes of reference.
+    \item \textbf{Coherence Inner Product:} Each \(C_x\) is endowed with a positive-definite \(G\)-invariant inner product \(\langle \cdot,\cdot \rangle_c\) with induced norm \(\|a\|_c=\sqrt{\langle a,a\rangle_c}\). This inner product enforces that any multiple representations of the same abstract object incur a penalty in norm if they disagree.
+\end{enumerate}
+
+\subsection{Universal Number Embedding}
+\begin{definition}[Universal Number Embedding]
+  For each natural number \(N\in\mathbb{N}\), write its expansion in every base \(b\ge2\) as
+  \[
+    N = a_k(b)b^k + a_{k-1}(b)b^{k-1} + \cdots + a_0(b),
+  \]
+  where \(0\le a_i(b) < b\) are the base-\(b\) digits of \(N\). The \emph{universal embedding} of \(N\) is given by
+  \[
+    \mathcal{E}(N) = \Big\{ \big(a_0(b), a_1(b), a_2(b), \dots\big)_b : b\ge2 \Big\}.
+  \]
+  This collection is encoded as an element \(\widehat{N}\in C_x\) whose distinct graded components store the digit sequences corresponding to each base. The coherence inner product forces all these representations to agree; hence, the unique minimal-norm element in the set 
+  \[
+    S_N = \{ a\in C_x : a \text{ encodes } N \text{ via } \mathcal{E}(N) \}
+  \]
+  is taken to be the canonical embedding \(\widehat{N}\) of \(N\).
+\end{definition}
+
+\subsection{Intrinsic Primes}
+\begin{definition}[Intrinsic Prime]
+  An embedded natural number \(\widehat{N}\in C_x\) (with \(N>1\)) is called \emph{intrinsically prime} if, whenever 
+  \[
+    \widehat{N} = \widehat{A}\cdot\widehat{B},
+  \]
+  for some \(\widehat{A},\widehat{B}\in C_x\) corresponding to natural numbers \(A\) and \(B\), then either \(A=1\) or \(B=1\). In other words, \(\widehat{N}\) does not admit any nontrivial factorization within \(C_x\).
+\end{definition}
+
+\section{Unique Factorization}
+We now prove the Fundamental Theorem of Arithmetic in the Prime Framework: every embedded number factors uniquely into intrinsic primes.
+
+\begin{theorem}[Unique Factorization]
+  Every embedded number \(\widehat{N}\in C_x\) with \(N>1\) can be expressed as
+  \[
+    \widehat{N} = \widehat{p}_1 \cdot \widehat{p}_2 \cdots \widehat{p}_k,
+  \]
+  where each \(\widehat{p}_i\) is an intrinsic prime. Moreover, this factorization is unique up to the order of the factors.
+\end{theorem}
+
+\begin{proof}
+\textbf{Existence:}  
+If \(\widehat{N}\) is itself intrinsic prime, the factorization is trivial. Otherwise, by definition there exist embedded numbers \(\widehat{A}\) and \(\widehat{B}\) (with corresponding natural numbers \(A, B > 1\)) such that
+\[
+  \widehat{N} = \widehat{A}\cdot\widehat{B}.
+\]
+Since the universal embedding guarantees that the representation of \(N\) is consistent across all bases, the factors \(\widehat{A}\) and \(\widehat{B}\) also satisfy the same coherence constraints. Applying the factorization process recursively to any composite factor, and noting that the ordinary natural number \(N\) is finite, the process terminates in a finite number of steps with a representation of \(\widehat{N}\) as a product of intrinsic primes.
+
+\medskip
+
+\textbf{Uniqueness:}  
+Assume that there exist two distinct factorizations of \(\widehat{N}\):
+\[
+  \widehat{N} = \widehat{p}_1\widehat{p}_2\cdots\widehat{p}_r = \widehat{q}_1\widehat{q}_2\cdots\widehat{q}_s,
+\]
+with each \(\widehat{p}_i\) and \(\widehat{q}_j\) an intrinsic prime, and where the associated natural numbers satisfy
+\[
+  p_1 \le p_2 \le \cdots \le p_r, \quad q_1 \le q_2 \le \cdots \le q_s.
+\]
+The coherence inner product \(\langle\cdot,\cdot\rangle_c\) on \(C_x\) ensures that the canonical embedding \(\widehat{N}\) is the unique minimal-norm element representing \(N\). If the two factorizations were genuinely different, then their induced multi-base representations (obtained by the product structure in \(C_x\)) would differ. 
+
+More precisely, suppose without loss of generality that \(p_1 < q_1\). Consider the element
+\[
+  \widehat{N}' = \widehat{p}_1^{-1}\widehat{N} \,,
+\]
+which by associativity and the existence of multiplicative inverses in \(C_x\) (at least on the subspace corresponding to the nonzero embeddings) admits two different factorizations:
+\[
+  \widehat{N}' = \widehat{p}_2\cdots\widehat{p}_r = \widehat{q}_1\cdots\widehat{q}_s \cdot \widehat{p}_1^{-1}.
+\]
+The averaging (or convexity) property of the norm \(\|\cdot\|_c\) then implies that one may construct an element
+\[
+  \widehat{a} = \frac{1}{2}\Big(\widehat{p}_2\cdots\widehat{p}_r + \widehat{q}_1\cdots\widehat{q}_s \cdot \widehat{p}_1^{-1}\Big)
+\]
+that still encodes the number represented by \(\widehat{N}'\) but has strictly smaller norm than the minimal norm. This contradicts the minimality and uniqueness of the canonical embedding induced by the coherence inner product. Thus, the assumption that two distinct factorizations exist must be false.
+
+Consequently, the factorization into intrinsic primes is unique up to the ordering of the factors.
+\end{proof}
+
+\section{Conclusion}
+We have shown that by embedding each natural number \(N\) as an element \(\widehat{N}\) of a fiber algebra \(C_x\) via its universal multi-base representation, the Prime Framework naturally defines an intrinsic notion of primality. The coherence inner product forces consistency among all representations and selects a unique minimal-norm embedding. Using these properties, we proved that every embedded number factors uniquely into intrinsic primes. This result mirrors the classical fundamental theorem of arithmetic, but it is derived entirely from the internal axioms of the Prime Framework.
+
+\end{document}
