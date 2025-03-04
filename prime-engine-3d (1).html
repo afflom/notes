@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimeEngine 3D - First Person Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #111827;
+            color: #f3f4f6;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 1000px;
+        }
+        
+        h1 {
+            color: #c7d2fe;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #818cf8;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .game-container {
+            position: relative;
+            background-color: #1f2937;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+            border: 1px solid #4f46e5;
+            width: 100%;
+            height: 600px;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            margin-top: 1rem;
+            background-color: #1f2937;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            width: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+        
+        .control-title {
+            font-weight: bold;
+            color: #c7d2fe;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .control-item {
+            background-color: #374151;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+        }
+        
+        .control-item-title {
+            font-weight: bold;
+            color: #a5b4fc;
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .control-item-description {
+            font-size: 0.75rem;
+            color: #d1d5db;
+        }
+        
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+        }
+        
+        .stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(31, 41, 55, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .stats div {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .message-content {
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 640px) {
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PrimeEngine 3D</h1>
+        <p class="subtitle">First Person Game with Gravity</p>
+        
+        <div class="game-container">
+            <canvas id="game-canvas"></canvas>
+            <div id="hud">
+                <div class="crosshair"></div>
+                <div class="stats">
+                    <div id="gems-counter">Gems: 0/8</div>
+                    <div id="lives-counter">Lives: 3</div>
+                    <div id="position-display"></div>
+                </div>
+                <div id="message" class="message">
+                    <div id="message-title" class="message-title"></div>
+                    <div id="message-content" class="message-content"></div>
+                    <div>Press SPACE to restart</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-title">Game Controls</div>
+            <div class="control-grid">
+                <div class="control-item">
+                    <div class="control-item-title">Movement</div>
+                    <div class="control-item-description">WASD to move, SPACE to jump, Mouse to look around</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-item-title">Objective</div>
+                    <div class="control-item-description">Collect all 8 gems while avoiding enemies. Watch out for the gravity!</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-item-title">Gravity System</div>
+                    <div class="control-item-description">You'll fall if there's no ground beneath you. Jump to reach platforms</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-item-title">3D World</div>
+                    <div class="control-item-description">Navigate in 3D space with first-person view - mind your surroundings!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // PrimeEngine 3D - A 3D game engine based on Prime Framework principles
+    
+    // Core engine classes
+    class PrimeEngine3D {
+        constructor(canvasId) {
+            // Reference Manifold (3D World)
+            this.canvas = document.getElementById(canvasId);
+            this.ctx = this.canvas.getContext('2d');
+            this.width = this.canvas.width = this.canvas.clientWidth;
+            this.height = this.canvas.height = this.canvas.clientHeight;
+            
+            // Game state
+            this.entities = [];
+            this.player = null;
+            this.camera = new Camera(this);
+            this.lastTime = 0;
+            this.running = false;
+            this.gemsCollected = 0;
+            this.totalGems = 8;
+            this.playerLives = 3;
+            this.gameState = 'playing'; // 'playing', 'win', 'lose'
+            this.invincibleTimer = 0;
+            
+            // World boundaries
+            this.worldSize = {
+                width: 50,  // x-axis
+                height: 30, // y-axis (vertical in 3D)
+                depth: 50   // z-axis
+            };
+            
+            // Physics
+            this.gravity = 20; // Downward force (negative y)
+            
+            // Input state
+            this.keys = {};
+            this.mouse = {
+                x: 0,
+                y: 0,
+                pressed: false,
+                locked: false
+            };
+            
+            // Systems initialization
+            this.inputSystem = new InputSystem(this);
+            this.renderSystem = new RenderSystem(this);
+            this.physicsSystem = new PhysicsSystem(this);
+            this.collisionSystem = new CollisionSystem(this);
+            
+            // Setup
+            this.setupInputListeners();
+            this.setupPointerLock();
+        }
+        
+        setupInputListeners() {
+            // Keyboard
+            window.addEventListener('keydown', (e) => {
+                this.keys[e.key.toLowerCase()] = true;
+                
+                // Prevent default behaviors for game keys
+                if (['w', 'a', 's', 'd', ' '].includes(e.key.toLowerCase())) {
+                    e.preventDefault();
+                }
+            });
+            
+            window.addEventListener('keyup', (e) => {
+                this.keys[e.key.toLowerCase()] = false;
+            });
+            
+            // Mouse movement (for camera control)
+            document.addEventListener('mousemove', (e) => {
+                if (this.mouse.locked) {
+                    this.camera.rotation.y += e.movementX * 0.002;
+                    this.camera.rotation.x += e.movementY * 0.002;
+                    
+                    // Limit looking up/down to prevent flipping
+                    this.camera.rotation.x = Math.max(
+                        Math.min(this.camera.rotation.x, Math.PI / 2 - 0.1),
+                        -Math.PI / 2 + 0.1
+                    );
+                }
+            });
+            
+            // Resize handler
+            window.addEventListener('resize', () => {
+                this.width = this.canvas.width = this.canvas.clientWidth;
+                this.height = this.canvas.height = this.canvas.clientHeight;
+                this.camera.aspect = this.width / this.height;
+            });
+        }
+        
+        setupPointerLock() {
+            // Request pointer lock on canvas click
+            this.canvas.addEventListener('click', () => {
+                if (!this.mouse.locked) {
+                    this.canvas.requestPointerLock();
+                }
+            });
+            
+            // Track pointer lock state
+            document.addEventListener('pointerlockchange', () => {
+                this.mouse.locked = document.pointerLockElement === this.canvas;
+            });
+            
+            // Add instructions to click for mouse control
+            const message = document.createElement('div');
+            message.style.position = 'absolute';
+            message.style.top = '50%';
+            message.style.left = '50%';
+            message.style.transform = 'translate(-50%, -50%)';
+            message.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            message.style.color = 'white';
+            message.style.padding = '20px';
+            message.style.borderRadius = '5px';
+            message.style.textAlign = 'center';
+            message.style.zIndex = '100';
+            message.style.pointerEvents = 'none';
+            message.innerHTML = '<div style="font-weight: bold; margin-bottom: 10px;">Click to Enable Mouse Control</div><div>WASD to move, SPACE to jump, Mouse to look around</div>';
+            message.id = 'mouse-instructions';
+            
+            this.canvas.parentNode.appendChild(message);
+            
+            // Hide instructions when pointer is locked
+            document.addEventListener('pointerlockchange', () => {
+                if (document.pointerLockElement === this.canvas) {
+                    message.style.display = 'none';
+                } else {
+                    message.style.display = 'block';
+                }
+            });
+        }
+        
+        start() {
+            if (!this.running) {
+                this.running = true;
+                requestAnimationFrame(this.gameLoop.bind(this));
+            }
+        }
+        
+        stop() {
+            this.running = false;
+        }
+        
+        gameLoop(timestamp) {
+            // Calculate delta time
+            let deltaTime = (timestamp - this.lastTime) / 1000; // in seconds
+            
+            // Cap delta time to prevent huge jumps if tab was inactive
+            deltaTime = Math.min(deltaTime, 0.1);
+            
+            this.lastTime = timestamp;
+            
+            // Process input for game state changes
+            this.processGameStateInput();
+            
+            // Only update game if playing
+            if (this.gameState === 'playing') {
+                // Update invincibility timer
+                if (this.invincibleTimer > 0) {
+                    this.invincibleTimer -= deltaTime;
+                }
+                
+                // Update inputs first (to get player intention)
+                this.inputSystem.update(deltaTime);
+                
+                // Update physics
+                this.physicsSystem.update(deltaTime);
+                
+                // Detect and resolve collisions
+                this.collisionSystem.update();
+                
+                // Update entities
+                this.updateEntities(deltaTime);
+                
+                // Update HUD
+                this.updateHUD();
+            }
+            
+            // Render scene (always render even if game is paused)
+            this.renderSystem.render();
+            
+            // Continue loop if running
+            if (this.running) {
+                requestAnimationFrame(this.gameLoop.bind(this));
+            }
+        }
+        
+        createEntity(components = {}) {
+            const id = 'entity_' + Math.random().toString(36).substr(2, 9);
+            const entity = { 
+                id, 
+                components: {},
+                engine: this
+            };
+            
+            // Add components
+            for (const type in components) {
+                entity.components[type] = components[type];
+            }
+            
+            // Add transform component if not present
+            if (!entity.components.transform) {
+                entity.components.transform = {
+                    position: { x: 0, y: 0, z: 0 },
+                    rotation: { x: 0, y: 0, z: 0 },
+                    scale: { x: 1, y: 1, z: 1 }
+                };
+            }
+            
+            this.entities.push(entity);
+            return entity;
+        }
+        
+        removeEntity(id) {
+            this.entities = this.entities.filter(entity => entity.id !== id);
+        }
+        
+        updateEntities(deltaTime) {
+            this.entities.forEach(entity => {
+                // Call update method on components if they have one
+                for (const key in entity.components) {
+                    const component = entity.components[key];
+                    if (component && typeof component.update === 'function') {
+                        component.update(deltaTime, entity);
+                    }
+                }
+            });
+        }
+        
+        collectGem(gemEntity) {
+            // Remove the gem from the game
+            this.removeEntity(gemEntity.id);
+            
+            // Increment gem count
+            this.gemsCollected++;
+            
+            // Play sound (if we had one)
+            
+            // Check for win condition
+            if (this.gemsCollected >= this.totalGems) {
+                this.gameState = 'win';
+                this.showMessage('YOU WIN!', `You collected all ${this.totalGems} gems!`);
+            }
+        }
+        
+        playerHit() {
+            // Only take damage if not invincible
+            if (this.invincibleTimer <= 0) {
+                this.playerLives--;
+                
+                // Set invincibility period
+                this.invincibleTimer = 2.0; // 2 seconds of invincibility
+                
+                // Check for game over
+                if (this.playerLives <= 0) {
+                    this.gameState = 'lose';
+                    this.showMessage('GAME OVER', `You collected ${this.gemsCollected} of ${this.totalGems} gems`);
+                }
+            }
+        }
+        
+        processGameStateInput() {
+            // Check for game restart
+            if ((this.gameState === 'win' || this.gameState === 'lose') && this.keys[' ']) {
+                this.resetGame();
+            }
+        }
+        
+        resetGame() {
+            // Reset game state
+            this.gameState = 'playing';
+            this.gemsCollected = 0;
+            this.playerLives = 3;
+            
+            // Reset player position
+            if (this.player && this.player.components.transform) {
+                this.player.components.transform.position = {
+                    x: 5,
+                    y: 10,
+                    z: 5
+                };
+                
+                // Reset player velocity
+                if (this.player.components.physics) {
+                    this.player.components.physics.velocity = {
+                        x: 0,
+                        y: 0,
+                        z: 0
+                    };
+                }
+            }
+            
+            // Remove all gems
+            this.entities = this.entities.filter(entity => 
+                !(entity.components.tag && entity.components.tag.name === 'gem'));
+            
+            // Recreate gems
+            this.createGems();
+            
+            // Hide any message
+            this.hideMessage();
+        }
+        
+        createGems() {
+            // Create 8 gems in various locations
+            const gemPositions = [
+                { x: 10, y: 5, z: 15 },
+                { x: 25, y: 8, z: 25 },
+                { x: 40, y: 12, z: 10 },
+                { x: 35, y: 7, z: 40 },
+                { x: 15, y: 15, z: 35 },
+                { x: 45, y: 10, z: 45 },
+                { x: 20, y: 9, z: 5 },
+                { x: 5, y: 20, z: 30 }
+            ];
+            
+            this.totalGems = gemPositions.length;
+            
+            for (let i = 0; i < gemPositions.length; i++) {
+                this.createEntity({
+                    transform: {
+                        position: { ...gemPositions[i] },
+                        rotation: { x: 0, y: 0, z: 0 },
+                        scale: { x: 1, y: 1, z: 1 }
+                    },
+                    render: {
+                        type: 'gem',
+                        color: '#fbbf24', // amber
+                        radius: 0.5
+                    },
+                    collision: {
+                        type: 'sphere',
+                        radius: 0.7,
+                        onCollision: (self, other) => {
+                            if (other === this.player) {
+                                this.collectGem(self);
+                            }
+                        }
+                    },
+                    animation: {
+                        speed: 1 + Math.random() * 0.5,
+                        offset: Math.random() * Math.PI * 2,
+                        amplitude: 0.5
+                    },
+                    tag: { name: 'gem' }
+                });
+            }
+        }
+        
+        createEnemies() {
+            // Create enemies that patrol back and forth
+            const enemyPaths = [
+                { start: { x: 10, y: 2, z: 10 }, end: { x: 20, y: 2, z: 10 } },
+                { start: { x: 30, y: 2, z: 30 }, end: { x: 30, y: 2, z: 40 } },
+                { start: { x: 40, y: 2, z: 15 }, end: { x: 15, y: 2, z: 40 } }
+            ];
+            
+            for (let i = 0; i < enemyPaths.length; i++) {
+                const path = enemyPaths[i];
+                
+                this.createEntity({
+                    transform: {
+                        position: { ...path.start },
+                        rotation: { x: 0, y: 0, z: 0 },
+                        scale: { x: 1, y: 1, z: 1 }
+                    },
+                    render: {
+                        type: 'enemy',
+                        color: '#ef4444', // red
+                        radius: 0.8
+                    },
+                    physics: {
+                        velocity: { x: 0, y: 0, z: 0 },
+                        useGravity: true,
+                        isKinematic: true // Doesn't respond to other forces
+                    },
+                    patrol: {
+                        start: path.start,
+                        end: path.end,
+                        speed: 3,
+                        progress: 0,
+                        direction: 1
+                    },
+                    collision: {
+                        type: 'sphere',
+                        radius: 0.8,
+                        onCollision: (self, other) => {
+                            if (other === this.player) {
+                                this.playerHit();
+                            }
+                        }
+                    },
+                    tag: { name: 'enemy' }
+                });
+            }
+        }
+        
+        createPlatforms() {
+            // Create the ground
+            this.createEntity({
+                transform: {
+                    position: { x: this.worldSize.width/2, y: 0, z: this.worldSize.depth/2 },
+                    rotation: { x: 0, y: 0, z: 0 },
+                    scale: { x: this.worldSize.width, y: 1, z: this.worldSize.depth }
+                },
+                render: {
+                    type: 'platform',
+                    color: '#1e293b'  // slate
+                },
+                collision: {
+                    type: 'box',
+                    size: { x: this.worldSize.width, y: 1, z: this.worldSize.depth },
+                    isStatic: true
+                },
+                tag: { name: 'ground' }
+            });
+            
+            // Create platforms
+            const platforms = [
+                { pos: { x: 15, y: 4, z: 15 }, size: { x: 10, y: 1, z: 10 } },
+                { pos: { x: 35, y: 6, z: 35 }, size: { x: 8, y: 1, z: 8 } },
+                { pos: { x: 25, y: 8, z: 25 }, size: { x: 6, y: 1, z: 6 } },
+                { pos: { x: 40, y: 10, z: 10 }, size: { x: 5, y: 1, z: 5 } },
+                { pos: { x: 10, y: 14, z: 35 }, size: { x: 7, y: 1, z: 7 } },
+                { pos: { x: 40, y: 8, z: 40 }, size: { x: 9, y: 1, z: 9 } },
+                { pos: { x: 5, y: 18, z: 30 }, size: { x: 4, y: 1, z: 4 } },
+                // Add stairs to help climbing
+                { pos: { x: 8, y: 2, z: 8 }, size: { x: 6, y: 1, z: 6 } },
+                { pos: { x: 22, y: 3, z: 6 }, size: { x: 6, y: 1, z: 6 } },
+                { pos: { x: 35, y: 3, z: 18 }, size: { x: 6, y: 1, z: 6 } },
+                { pos: { x: 18, y: 12, z: 20 }, size: { x: 4, y: 1, z: 4 } },
+                { pos: { x: 30, y: 15, z: 15 }, size: { x: 5, y: 1, z: 5 } }
+            ];
+            
+            for (let i = 0; i < platforms.length; i++) {
+                const p = platforms[i];
+                
+                this.createEntity({
+                    transform: {
+                        position: p.pos,
+                        rotation: { x: 0, y: 0, z: 0 },
+                        scale: p.size
+                    },
+                    render: {
+                        type: 'platform',
+                        color: `hsl(${210 + i*20}, 50%, 40%)`
+                    },
+                    collision: {
+                        type: 'box',
+                        size: p.size,
+                        isStatic: true
+                    },
+                    tag: { name: 'platform' }
+                });
+            }
+        }
+        
+        createPlayer(position) {
+            this.player = this.createEntity({
+                transform: {
+                    position: position || { x: 5, y: 10, z: 5 },
+                    rotation: { x: 0, y: 0, z: 0 },
+                    scale: { x: 1, y: 1, z: 1 }
+                },
+                render: {
+                    type: 'player',
+                    color: '#4f46e5' // indigo
+                },
+                physics: {
+                    velocity: { x: 0, y: 0, z: 0 },
+                    useGravity: true,
+                    drag: 5,
+                    mass: 1
+                },
+                collision: {
+                    type: 'sphere',
+                    radius: 0.8,
+                    onCollision: () => {}
+                },
+                controller: {
+                    moveSpeed: 10,
+                    jumpForce: 10,
+                    isGrounded: false,
+                    jumpCooldown: 0
+                },
+                tag: { name: 'player' }
+            });
+            
+            return this.player;
+        }
+        
+        showMessage(title, content) {
+            const messageEl = document.getElementById('message');
+            const titleEl = document.getElementById('message-title');
+            const contentEl = document.getElementById('message-content');
+            
+            titleEl.textContent = title;
+            contentEl.textContent = content;
+            messageEl.style.display = 'block';
+        }
+        
+        hideMessage() {
+            document.getElementById('message').style.display = 'none';
+        }
+        
+        updateHUD() {
+            // Update gems counter
+            document.getElementById('gems-counter').textContent = `Gems: ${this.gemsCollected}/${this.totalGems}`;
+            
+            // Update lives counter with color
+            const livesEl = document.getElementById('lives-counter');
+            
+            if (this.playerLives > 2) {
+                livesEl.style.color = '#4ade80'; // Green for 3 lives
+            } else if (this.playerLives > 1) {
+                livesEl.style.color = '#facc15'; // Yellow for 2 lives
+            } else {
+                livesEl.style.color = '#ef4444'; // Red for 1 life
+            }
+            
+            livesEl.textContent = `Lives: ${this.playerLives}`;
+            
+            // Update position display (helpful for debugging)
+            if (this.player) {
+                const pos = this.player.components.transform.position;
+                document.getElementById('position-display').textContent = 
+                    `Position: ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`;
+            }
+        }
+    }
+    
+    // Camera system for first-person view
+    class Camera {
+        constructor(engine) {
+            this.engine = engine;
+            this.position = { x: 0, y: 2, z: 0 }; // Offset from player
+            this.rotation = { x: 0, y: 0, z: 0 }; // Pitch, yaw, roll
+            this.aspect = engine.width / engine.height;
+            this.fov = 70 * Math.PI / 180;
+            this.near = 0.1;
+            this.far = 1000;
+            
+            // View matrices and projection would be calculated here
+            // For our simple implementation we'll use the rotation directly
+        }
+        
+        update() {
+            // Camera follows player with first-person perspective
+            if (this.engine.player) {
+                const playerPos = this.engine.player.components.transform.position;
+                
+                // Set camera at player's head level
+                this.position = {
+                    x: playerPos.x,
+                    y: playerPos.y + 1.7, // Eye height
+                    z: playerPos.z
+                };
+            }
+        }
+        
+        // Get forward vector based on camera rotation
+        getForwardVector() {
+            return {
+                x: Math.sin(this.rotation.y),
+                y: -Math.sin(this.rotation.x),
+                z: -Math.cos(this.rotation.y)
+            };
+        }
+        
+        // Get right vector based on camera rotation
+        getRightVector() {
+            return {
+                x: Math.cos(this.rotation.y),
+                y: 0,
+                z: -Math.sin(this.rotation.y)
+            };
+        }
+    }
+    
+    // Input system handles player controls
+    class InputSystem {
+        constructor(engine) {
+            this.engine = engine;
+        }
+        
+        update(deltaTime) {
+            if (this.engine.player && this.engine.gameState === 'playing') {
+                const player = this.engine.player;
+                const controller = player.components.controller;
+                const physics = player.components.physics;
+                
+                if (!physics || !controller) return;
+                
+                // Get camera vectors for movement direction
+                const forward = this.engine.camera.getForwardVector();
+                const right = this.engine.camera.getRightVector();
+                
+                // Reset horizontal velocity (we'll apply it based on input)
+                let moveX = 0;
+                let moveZ = 0;
+                
+                // WASD movement
+                if (this.engine.keys['w']) {
+                    moveX += forward.x;
+                    moveZ += forward.z;
+                }
+                if (this.engine.keys['s']) {
+                    moveX -= forward.x;
+                    moveZ -= forward.z;
+                }
+                if (this.engine.keys['a']) {
+                    moveX -= right.x;
+                    moveZ -= right.z;
+                }
+                if (this.engine.keys['d']) {
+                    moveX += right.x;
+                    moveZ += right.z;
+                }
+                
+                // Normalize movement vector if not zero
+                const moveLength = Math.sqrt(moveX * moveX + moveZ * moveZ);
+                if (moveLength > 0) {
+                    moveX /= moveLength;
+                    moveZ /= moveLength;
+                    
+                    // Apply movement force
+                    physics.velocity.x = moveX * controller.moveSpeed;
+                    physics.velocity.z = moveZ * controller.moveSpeed;
+                } else {
+                    // No input, slow down horizontal movement
+                    physics.velocity.x *= 0.8;
+                    physics.velocity.z *= 0.8;
+                }
+                
+                // Jump when spacebar is pressed and player is grounded
+                if (this.engine.keys[' '] && controller.isGrounded && controller.jumpCooldown <= 0) {
+                    physics.velocity.y = controller.jumpForce;
+                    controller.isGrounded = false;
+                    controller.jumpCooldown = 0.2; // Prevent spam jumping
+                }
+                
+                // Reduce jump cooldown
+                if (controller.jumpCooldown > 0) {
+                    controller.jumpCooldown -= deltaTime;
+                }
+            }
+        }
+    }
+    
+    // Physics system handles motion, gravity and constraints
+    class PhysicsSystem {
+        constructor(engine) {
+            this.engine = engine;
+        }
+        
+        update(deltaTime) {
+            this.engine.entities.forEach(entity => {
+                const physics = entity.components.physics;
+                const transform = entity.components.transform;
+                
+                if (!physics || !transform) return;
+                
+                // Only apply physics to non-kinematic objects
+                if (!physics.isKinematic) {
+                    // Apply gravity to y-velocity if enabled
+                    if (physics.useGravity) {
+                        physics.velocity.y -= this.engine.gravity * deltaTime;
+                    }
+                    
+                    // Apply drag to slow down movement
+                    if (physics.drag) {
+                        const dragFactor = 1 - Math.min(1, physics.drag * deltaTime);
+                        physics.velocity.x *= dragFactor;
+                        physics.velocity.y *= dragFactor * 0.1; // Less drag on vertical movement
+                        physics.velocity.z *= dragFactor;
+                    }
+                }
+                
+                // Update position based on velocity
+                transform.position.x += physics.velocity.x * deltaTime;
+                transform.position.y += physics.velocity.y * deltaTime;
+                transform.position.z += physics.velocity.z * deltaTime;
+                
+                // Apply constrained world boundaries
+                if (transform.position.x < 0) transform.position.x = 0;
+                if (transform.position.x > this.engine.worldSize.width) transform.position.x = this.engine.worldSize.width;
+                if (transform.position.z < 0) transform.position.z = 0;
+                if (transform.position.z > this.engine.worldSize.depth) transform.position.z = this.engine.worldSize.depth;
+                
+                // Entities with controller component need to track grounded state
+                const controller = entity.components.controller;
+                if (controller) {
+                    // Reset grounded state each frame (collision system will set it if needed)
+                    controller.isGrounded = false;
+                }
+                
+                // Handle patrol behavior for enemies
+                const patrol = entity.components.patrol;
+                if (patrol) {
+                    // Update patrol progress
+                    patrol.progress += patrol.speed * deltaTime * patrol.direction;
+                    
+                    // Reverse direction at endpoints
+                    if (patrol.progress > 1) {
+                        patrol.progress = 1;
+                        patrol.direction = -1;
+                    } else if (patrol.progress < 0) {
+                        patrol.progress = 0;
+                        patrol.direction = 1;
+                    }
+                    
+                    // Interpolate position
+                    transform.position.x = patrol.start.x + (patrol.end.x - patrol.start.x) * patrol.progress;
+                    transform.position.z = patrol.start.z + (patrol.end.z - patrol.start.z) * patrol.progress;
+                    
+                    // Calculate direction for rotation
+                    if (Math.abs(patrol.end.x - patrol.start.x) > Math.abs(patrol.end.z - patrol.start.z)) {
+                        transform.rotation.y = patrol.direction > 0 ? 0 : Math.PI;
+                    } else {
+                        transform.rotation.y = patrol.direction > 0 ? Math.PI/2 : -Math.PI/2;
+                    }
+                }
+                
+                // Update animations
+                const animation = entity.components.animation;
+                if (animation) {
+                    // Apply floating animation for gems
+                    transform.position.y = transform.position.y - animation.amplitude/2 + 
+                        Math.sin(Date.now() / 1000 * animation.speed + animation.offset) * animation.amplitude;
+                }
+            });
+            
+            // Update camera position to follow player
+            this.engine.camera.update();
+        }
+    }
+    
+    // Collision system detects and resolves collisions
+    class CollisionSystem {
+        constructor(engine) {
+            this.engine = engine;
+        }
+        
+        update() {
+            const entities = this.engine.entities;
+            
+            // Check each entity against every other entity
+            for (let i = 0; i < entities.length; i++) {
+                const entityA = entities[i];
+                const collisionA = entityA.components.collision;
+                const transformA = entityA.components.transform;
+                
+                if (!collisionA || !transformA) continue;
+                
+                for (let j = i + 1; j < entities.length; j++) {
+                    const entityB = entities[j];
+                    const collisionB = entityB.components.collision;
+                    const transformB = entityB.components.transform;
+                    
+                    if (!collisionB || !transformB) continue;
+                    
+                    // Skip if both entities are static
+                    if (collisionA.isStatic && collisionB.isStatic) continue;
+                    
+                    // Check collision based on types
+                    let collisionOccurred = false;
+                    
+                    if (collisionA.type === 'sphere' && collisionB.type === 'sphere') {
+                        collisionOccurred = this.checkSphereSphere(
+                            transformA.position, collisionA.radius,
+                            transformB.position, collisionB.radius
+                        );
+                    } else if (collisionA.type === 'sphere' && collisionB.type === 'box') {
+                        collisionOccurred = this.checkSphereBox(
+                            transformA.position, collisionA.radius,
+                            transformB.position, collisionB.size
+                        );
+                    } else if (collisionA.type === 'box' && collisionB.type === 'sphere') {
+                        collisionOccurred = this.checkSphereBox(
+                            transformB.position, collisionB.radius,
+                            transformA.position, collisionA.size
+                        );
+                    }
+                    
+                    // If collision detected
+                    if (collisionOccurred) {
+                        // Call collision handlers if they exist
+                        if (collisionA.onCollision) {
+                            collisionA.onCollision(entityA, entityB);
+                        }
+                        
+                        if (collisionB.onCollision) {
+                            collisionB.onCollision(entityB, entityA);
+                        }
+                        
+                        // Check for player grounding
+                        if ((entityA === this.engine.player || entityB === this.engine.player) &&
+                            (entityA.components.tag?.name === 'ground' || 
+                             entityB.components.tag?.name === 'ground' ||
+                             entityA.components.tag?.name === 'platform' ||
+                             entityB.components.tag?.name === 'platform')) {
+                            
+                            const player = entityA === this.engine.player ? entityA : entityB;
+                            const platform = entityA === this.engine.player ? entityB : entityA;
+                            
+                            // Check if player is on top of the platform
+                            const playerY = player.components.transform.position.y;
+                            const platformY = platform.components.transform.position.y;
+                            const platformHeight = platform.components.collision.size?.y || 0;
+                            
+                            if (playerY >= platformY + platformHeight/2 - 0.2 && 
+                                player.components.physics.velocity.y <= 0) {
+                                
+                                // Set grounded state
+                                player.components.controller.isGrounded = true;
+                                
+                                // Stop falling when grounded
+                                player.components.physics.velocity.y = 0;
+                                
+                                // Adjust player position to be exactly on the platform
+                                player.components.transform.position.y = platformY + platformHeight/2 + 0.8;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check collision between two spheres
+        checkSphereSphere(posA, radiusA, posB, radiusB) {
+            const dx = posA.x - posB.x;
+            const dy = posA.y - posB.y;
+            const dz = posA.z - posB.z;
+            
+            const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            
+            return distance < radiusA + radiusB;
+        }
+        
+        // Check collision between sphere and box
+        checkSphereBox(spherePos, sphereRadius, boxPos, boxSize) {
+            // Calculate box min and max points
+            const boxMin = {
+                x: boxPos.x - boxSize.x/2,
+                y: boxPos.y - boxSize.y/2,
+                z: boxPos.z - boxSize.z/2
+            };
+            
+            const boxMax = {
+                x: boxPos.x + boxSize.x/2,
+                y: boxPos.y + boxSize.y/2,
+                z: boxPos.z + boxSize.z/2
+            };
+            
+            // Find closest point on box to sphere
+            const closest = {
+                x: Math.max(boxMin.x, Math.min(spherePos.x, boxMax.x)),
+                y: Math.max(boxMin.y, Math.min(spherePos.y, boxMax.y)),
+                z: Math.max(boxMin.z, Math.min(spherePos.z, boxMax.z))
+            };
+            
+            // Calculate distance between closest point and sphere center
+            const dx = closest.x - spherePos.x;
+            const dy = closest.y - spherePos.y;
+            const dz = closest.z - spherePos.z;
+            
+            const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            
+            return distance < sphereRadius;
+        }
+    }
+    
+    // Rendering system draws 3D scene in pseudo-3D on canvas
+    class RenderSystem {
+        constructor(engine) {
+            this.engine = engine;
+            this.ctx = engine.ctx;
+            
+            // Debug settings
+            this.drawDebugInfo = true;
+        }
+        
+        render() {
+            const ctx = this.ctx;
+            const camera = this.engine.camera;
+            const entities = this.engine.entities;
+            
+            // Clear with a gradient sky
+            const gradient = ctx.createLinearGradient(0, 0, 0, this.engine.height);
+            gradient.addColorStop(0, '#1e293b');  // Dark blue at top
+            gradient.addColorStop(1, '#334155');  // Lighter at bottom
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, this.engine.width, this.engine.height);
+            
+            // Draw a ground grid for orientation
+            this.drawGroundGrid(ctx, camera);
+            
+            // Debug info
+            if (this.drawDebugInfo) {
+                ctx.fillStyle = 'white';
+                ctx.font = '12px monospace';
+                ctx.fillText(`Camera: ${Math.round(camera.position.x)}, ${Math.round(camera.position.y)}, ${Math.round(camera.position.z)}`, 10, this.engine.height - 60);
+                ctx.fillText(`Rotation: ${camera.rotation.y.toFixed(2)}`, 10, this.engine.height - 40);
+                ctx.fillText(`Entities: ${entities.length}`, 10, this.engine.height - 20);
+            }
+            
+            // Sort entities by distance from camera (painter's algorithm)
+            const sortedEntities = [...entities].sort((a, b) => {
+                const posA = a.components.transform?.position || {x: 0, y: 0, z: 0};
+                const posB = b.components.transform?.position || {x: 0, y: 0, z: 0};
+                
+                // Calculate squared distance to camera (faster than sqrt)
+                const distA = this.distanceSquared(posA, camera.position);
+                const distB = this.distanceSquared(posB, camera.position);
+                
+                // Draw furthest first
+                return distB - distA;
+            });
+            
+            // Render each visible entity
+            for (const entity of sortedEntities) {
+                const transform = entity.components.transform;
+                const render = entity.components.render;
+                
+                if (!transform || !render) continue;
+                
+                // Skip rendering player (we're in first person)
+                if (entity === this.engine.player) continue;
+                
+                // Calculate camera-relative coordinates
+                const relativePos = this.toCameraSpace(transform.position, camera);
+                
+                // Skip objects behind the camera
+                if (relativePos.z <= 0.1) continue;
+                
+                // Simple perspective projection
+                const scale = 800 / relativePos.z;
+                const screenX = this.engine.width / 2 + relativePos.x * scale;
+                const screenY = this.engine.height / 2 - relativePos.y * scale; // Negative to invert Y
+                
+                // Skip if outside screen (with margin)
+                const margin = Math.max(100, scale * Math.max(
+                    transform.scale?.x || 1, 
+                    transform.scale?.y || 1,
+                    transform.scale?.z || 1
+                ));
+                
+                if (screenX < -margin || screenX > this.engine.width + margin ||
+                    screenY < -margin || screenY > this.engine.height + margin) {
+                    continue;
+                }
+                
+                // Render based on entity type
+                ctx.save();
+                
+                switch(render.type) {
+                    case 'platform':
+                        this.renderPlatform(ctx, screenX, screenY, scale, transform, render, relativePos.z);
+                        break;
+                    case 'gem':
+                        this.renderGem(ctx, screenX, screenY, scale * render.radius, render);
+                        break;
+                    case 'enemy':
+                        this.renderEnemy(ctx, screenX, screenY, scale * render.radius, render);
+                        break;
+                    default:
+                        // Default circle rendering
+                        ctx.fillStyle = render.color || '#ffffff';
+                        ctx.beginPath();
+                        ctx.arc(screenX, screenY, 20 * scale, 0, Math.PI * 2);
+                        ctx.fill();
+                }
+                
+                // Debug: Draw entity position and type
+                if (this.drawDebugInfo) {
+                    ctx.fillStyle = 'white';
+                    ctx.font = '10px monospace';
+                    ctx.fillText(
+                        `${render.type} (${Math.round(transform.position.x)},${Math.round(transform.position.y)},${Math.round(transform.position.z)})`, 
+                        screenX + 10, 
+                        screenY
+                    );
+                }
+                
+                ctx.restore();
+            }
+        }
+        
+        drawGroundGrid(ctx, camera) {
+            const gridSize = 5; // Spacing between grid lines
+            const gridExtent = 50; // How far the grid extends
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            
+            // Draw grid lines along X and Z axes
+            for (let i = -gridExtent; i <= gridExtent; i += gridSize) {
+                // Lines parallel to X-axis
+                const startX = { x: -gridExtent, y: 0, z: i };
+                const endX = { x: gridExtent, y: 0, z: i };
+                
+                // Lines parallel to Z-axis
+                const startZ = { x: i, y: 0, z: -gridExtent };
+                const endZ = { x: i, y: 0, z: gridExtent };
+                
+                this.drawLine3D(ctx, startX, endX, camera);
+                this.drawLine3D(ctx, startZ, endZ, camera);
+            }
+        }
+        
+        drawLine3D(ctx, start, end, camera) {
+            // Convert to camera space
+            const startCam = this.toCameraSpace(start, camera);
+            const endCam = this.toCameraSpace(end, camera);
+            
+            // Skip if both points are behind camera
+            if (startCam.z <= 0.1 && endCam.z <= 0.1) return;
+            
+            // If one point is behind camera, clip the line
+            if (startCam.z <= 0.1 || endCam.z <= 0.1) {
+                // Simple z-clipping - not perfect but works for grid
+                const t = (0.1 - startCam.z) / (endCam.z - startCam.z);
+                
+                if (startCam.z <= 0.1) {
+                    startCam.x = startCam.x + t * (endCam.x - startCam.x);
+                    startCam.y = startCam.y + t * (endCam.y - startCam.y);
+                    startCam.z = 0.1;
+                } else {
+                    endCam.x = startCam.x + t * (endCam.x - startCam.x);
+                    endCam.y = startCam.y + t * (endCam.y - startCam.y);
+                    endCam.z = 0.1;
+                }
+            }
+            
+            // Project to screen
+            const scale1 = 800 / startCam.z;
+            const scale2 = 800 / endCam.z;
+            
+            const screenStart = {
+                x: this.engine.width / 2 + startCam.x * scale1,
+                y: this.engine.height / 2 - startCam.y * scale1
+            };
+            
+            const screenEnd = {
+                x: this.engine.width / 2 + endCam.x * scale2,
+                y: this.engine.height / 2 - endCam.y * scale2
+            };
+            
+            // Draw the line
+            ctx.beginPath();
+            ctx.moveTo(screenStart.x, screenStart.y);
+            ctx.lineTo(screenEnd.x, screenEnd.y);
+            ctx.stroke();
+        }
+        
+        renderPlatform(ctx, x, y, scale, transform, render, zDepth) {
+            // Calculate platform dimensions based on scale
+            const width = transform.scale.x * scale;
+            const platformDepth = transform.scale.z * scale;
+            const height = transform.scale.y * scale * 0.5; // Make height less prominent
+            
+            // Draw the platform as a cuboid
+            ctx.fillStyle = render.color;
+            
+            // Top face (main platform surface)
+            ctx.beginPath();
+            ctx.rect(x - width/2, y - platformDepth/2, width, platformDepth);
+            ctx.fill();
+            
+            // Front face (if visible)
+            if (transform.position.z > this.engine.camera.position.z) {
+                ctx.fillStyle = this.adjustColor(render.color, -30);
+                ctx.beginPath();
+                ctx.rect(x - width/2, y + platformDepth/2, width, height);
+                ctx.fill();
+            }
+            
+            // Right face (if visible)
+            if (transform.position.x > this.engine.camera.position.x) {
+                ctx.fillStyle = this.adjustColor(render.color, -15);
+                ctx.beginPath();
+                ctx.rect(x + width/2, y - platformDepth/2, height, platformDepth);
+                ctx.fill();
+            }
+            
+            // Border around top face for clarity
+            ctx.strokeStyle = this.adjustColor(render.color, 30);
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x - width/2, y - platformDepth/2, width, platformDepth);
+        }
+        
+        renderGem(ctx, x, y, radius, render) {
+            // Draw gem glow
+            ctx.shadowColor = render.color;
+            ctx.shadowBlur = radius * 0.5;
+            
+            // Draw diamond shape
+            ctx.fillStyle = render.color;
+            ctx.beginPath();
+            
+            // Diamond points
+            ctx.moveTo(x, y - radius);
+            ctx.lineTo(x + radius, y);
+            ctx.lineTo(x, y + radius);
+            ctx.lineTo(x - radius, y);
+            ctx.closePath();
+            
+            ctx.fill();
+            
+            // Add shine
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.beginPath();
+            ctx.moveTo(x, y - radius*0.5);
+            ctx.lineTo(x - radius*0.5, y);
+            ctx.lineTo(x - radius*0.2, y - radius*0.3);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+        }
+        
+        renderEnemy(ctx, x, y, radius, render) {
+            // Enemy body
+            ctx.fillStyle = render.color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(x - radius*0.3, y - radius*0.2, radius*0.2, 0, Math.PI * 2);
+            ctx.arc(x + radius*0.3, y - radius*0.2, radius*0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Pupils
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(x - radius*0.3, y - radius*0.2, radius*0.1, 0, Math.PI * 2);
+            ctx.arc(x + radius*0.3, y - radius*0.2, radius*0.1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Mouth
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(x, y + radius*0.2, radius*0.4, 0, Math.PI);
+            ctx.fill();
+            
+            // Teeth
+            ctx.fillStyle = render.color;
+            ctx.beginPath();
+            ctx.rect(x - radius*0.35, y + radius*0.2, radius*0.1, radius*0.2);
+            ctx.rect(x - radius*0.15, y + radius*0.2, radius*0.1, radius*0.25);
+            ctx.rect(x + radius*0.05, y + radius*0.2, radius*0.1, radius*0.25);
+            ctx.rect(x + radius*0.25, y + radius*0.2, radius*0.1, radius*0.2);
+            ctx.fill();
+        }
+        
+        // Convert world coordinates to camera-relative space
+        toCameraSpace(pos, camera) {
+            // Calculate direction vector from camera to point
+            const dir = {
+                x: pos.x - camera.position.x,
+                y: pos.y - camera.position.y,
+                z: pos.z - camera.position.z
+            };
+            
+            // Calculate dot products with camera basis vectors
+            const forward = {
+                x: Math.sin(camera.rotation.y),
+                y: -Math.sin(camera.rotation.x),
+                z: -Math.cos(camera.rotation.y)
+            };
+            
+            const right = {
+                x: Math.cos(camera.rotation.y),
+                y: 0,
+                z: -Math.sin(camera.rotation.y)
+            };
+            
+            const up = this.crossProduct(forward, right);
+            
+            // Transform into camera space
+            return {
+                x: this.dotProduct(dir, right),
+                y: this.dotProduct(dir, up),
+                z: this.dotProduct(dir, forward)
+            };
+        }
+        
+        // Helper methods for vector operations
+        dotProduct(a, b) {
+            return a.x * b.x + a.y * b.y + a.z * b.z;
+        }
+        
+        crossProduct(a, b) {
+            return {
+                x: a.y * b.z - a.z * b.y,
+                y: a.z * b.x - a.x * b.z,
+                z: a.x * b.y - a.y * b.x
+            };
+        }
+        
+        distanceSquared(a, b) {
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const dz = a.z - b.z;
+            return dx*dx + dy*dy + dz*dz;
+        }
+        
+        // Lighten or darken a color
+        adjustColor(color, amount) {
+            // Handle hex colors
+            if (color.startsWith('#')) {
+                const hex = color.slice(1);
+                const rgb = parseInt(hex, 16);
+                
+                const r = Math.max(0, Math.min(255, ((rgb >> 16) & 0xff) + amount));
+                const g = Math.max(0, Math.min(255, ((rgb >> 8) & 0xff) + amount));
+                const b = Math.max(0, Math.min(255, (rgb & 0xff) + amount));
+                
+                return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+            }
+            
+            // Handle hsl colors
+            if (color.startsWith('hsl')) {
+                // Extract values (simple implementation)
+                const match = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+                if (match) {
+                    const h = parseInt(match[1]);
+                    const s = parseInt(match[2]);
+                    const l = Math.max(0, Math.min(100, parseInt(match[3]) + amount/2));
+                    return `hsl(${h}, ${s}%, ${l}%)`;
+                }
+            }
+            
+            return color;
+        }
+    }
+    
+    // Initialize the demo
+    function createPrimeEngine3DDemo() {
+        // Create engine instance
+        const engine = new PrimeEngine3D('game-canvas');
+        
+        // Create player (with first-person camera)
+        engine.createPlayer({ x: 5, y: 10, z: 5 });
+        
+        // Create world
+        engine.createPlatforms();
+        engine.createGems();
+        engine.createEnemies();
+        
+        // Start the game
+        engine.start();
+        
+        return engine;
+    }
+    
+    // Start the demo when the page loads
+    window.addEventListener('load', function() {
+        // Create the game demo
+        const game = createPrimeEngine3DDemo();
+        
+        // Handle window resize to maintain canvas aspect ratio
+        function resizeCanvas() {
+            const container = document.querySelector('.game-container');
+            const canvas = document.getElementById('game-canvas');
+            
+            // Get the container width
+            const containerWidth = container.clientWidth;
+            
+            // Set the canvas dimensions
+            canvas.width = containerWidth;
+            canvas.height = container.clientHeight;
+            
+            // Update engine dimensions
+            if (game) {
+                game.width = canvas.width;
+                game.height = canvas.height;
+            }
+        }
+        
+        // Initial resize
+        resizeCanvas();
+        
+        // Listen for window resize events
+        window.addEventListener('resize', resizeCanvas);
+    });
+    </script>
+</body>
+</html>

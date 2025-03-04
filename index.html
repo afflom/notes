@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrimeEngine Demo</title>
+  <!-- Add preload hints for Three.js modules -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js" as="script">
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/controls/PointerLockControls.js" as="script">
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      pointer-events: none;
+      max-width: 300px;
+    }
+    #controls {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px;
+      font-family: monospace;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="info">
+    <h2>PrimeEngine Demo</h2>
+    <p>A physics engine based on the Prime Framework</p>
+    <div id="physics-stats"></div>
+  </div>
+  <div id="controls">
+    WASD: Move | Mouse: Look | Space: Jump | R: Reset Objects
+  </div>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js"
+      }
+    }
+  </script>
+  <script type="module">
+    // Ensure imports use full CDN URLs
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js';
+    import { PointerLockControls } from 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/controls/PointerLockControls.js';
+
+    /**
+     * PrimeEngine - A physics engine based on the Prime Framework
+     */
+    class PrimeEngine {
+      constructor(gravityStrength = 9.8) {
+        this.objects = [];
+        this.lastTime = performance.now();
+        this.constants = {
+          gravitationalConstant: gravityStrength,
+          airResistance: 0.01,
+          elasticity: 0.7,
+          friction: 0.1
+        };
+        this.coherence = {
+          energyPreservation: 0.98,
+          symmetryPreservation: 0.95,
+          timeStep: 1 / 60
+        };
+        this.manifold = {
+          metric: (a, b) => Math.sqrt(
+            Math.pow(b.x - a.x, 2) +
+            Math.pow(b.y - a.y, 2) +
+            Math.pow(b.z - a.z, 2)
+          ),
+          curvature: 0.0
+        };
+        this.stats = {
+          totalEnergy: 0,
+          objectCount: 0,
+          collisions: 0
+        };
+      }
+
+      addObject(object) {
+        if (!object.physics) {
+          object.physics = {
+            mass: 1.0,
+            velocity: new THREE.Vector3(0, 0, 0),
+            acceleration: new THREE.Vector3(0, 0, 0),
+            forces: new THREE.Vector3(0, 0, 0),
+            isStatic: false
+          };
+        }
+        this.objects.push(object);
+        this.stats.objectCount = this.objects.length;
+        return object;
+      }
+
+      applyForce(object, force) {
+        if (object.physics && !object.physics.isStatic) {
+          object.physics.forces.add(force);
+        }
+      }
+
+      update() {
+        const now = performance.now();
+        const dt = this.coherence.timeStep;
+        this.lastTime = now;
+        let totalEnergy = 0;
+
+        // Update forces for every dynamic object.
+        for (const object of this.objects) {
+          if (object.physics && !object.physics.isStatic) {
+            // Only reset forces if keepForces is not true.
+            if (!object.physics.keepForces) {
+              object.physics.forces.set(0, 0, 0);
+            }
+            // Always apply gravity.
+            const gravityForce = new THREE.Vector3(0, -this.constants.gravitationalConstant * object.physics.mass, 0);
+            this.applyForce(object, gravityForce);
+            const airResistance = object.physics.velocity.clone()
+              .multiplyScalar(-this.constants.airResistance * object.physics.velocity.length());
+            this.applyForce(object, airResistance);
+          }
+        }
+
+        // Update physics for all objects
+        for (const object of this.objects) {
+          if (object.physics && !object.physics.isStatic) {
+            object.physics.acceleration.copy(object.physics.forces).divideScalar(object.physics.mass);
+            object.physics.velocity.add(object.physics.acceleration.clone().multiplyScalar(dt));
+            const displacement = object.physics.velocity.clone().multiplyScalar(dt);
+            object.position.add(displacement);
+            const kineticEnergy = 0.5 * object.physics.mass * object.physics.velocity.lengthSq();
+            totalEnergy += kineticEnergy;
+          }
+        }
+
+        // Collision detection & resolution
+        this.resolveCollisions();
+
+        // Ground collision handling (for objects with a "radius" property)
+        for (const object of this.objects) {
+          if (object.physics && !object.physics.isStatic && object.geometry && object.geometry.parameters.radius) {
+            if (object.position.y - object.geometry.parameters.radius < 0) {
+              object.position.y = object.geometry.parameters.radius;
+              if (object.physics.velocity.y < 0) {
+                object.physics.velocity.y = -object.physics.velocity.y * this.coherence.energyPreservation;
+                object.physics.velocity.x *= (1 - this.constants.friction);
+                object.physics.velocity.z *= (1 - this.constants.friction);
+                this.stats.collisions++;
+              }
+            }
+          }
+        }
+
+        this.stats.totalEnergy = totalEnergy;
+      }
+
+      resolveCollisions() {
+        for (let i = 0; i < this.objects.length; i++) {
+          const objA = this.objects[i];
+          if (objA.physics.isStatic) continue;
+          for (let j = i + 1; j < this.objects.length; j++) {
+            const objB = this.objects[j];
+            const radiusA = (objA.geometry && objA.geometry.parameters.radius) || 0.5;
+            const radiusB = (objB.geometry && objB.geometry.parameters.radius) || 0.5;
+            const distance = this.manifold.metric(objA.position, objB.position);
+            if (distance < radiusA + radiusB) {
+              this.stats.collisions++;
+              const normal = new THREE.Vector3().subVectors(objB.position, objA.position).normalize();
+              const relativeVelocity = new THREE.Vector3();
+              if (!objB.physics.isStatic) {
+                relativeVelocity.subVectors(objA.physics.velocity, objB.physics.velocity);
+              } else {
+                relativeVelocity.copy(objA.physics.velocity);
+              }
+              const velocityAlongNormal = relativeVelocity.dot(normal);
+              if (velocityAlongNormal > 0) continue;
+              let impulseScalar = -(1 + this.constants.elasticity) * velocityAlongNormal;
+              if (!objB.physics.isStatic) {
+                impulseScalar /= (1 / objA.physics.mass + 1 / objB.physics.mass);
+              } else {
+                impulseScalar /= (1 / objA.physics.mass);
+              }
+              impulseScalar *= this.coherence.symmetryPreservation;
+              const impulse = normal.clone().multiplyScalar(impulseScalar);
+              objA.physics.velocity.add(impulse.clone().divideScalar(objA.physics.mass));
+              if (!objB.physics.isStatic) {
+                objB.physics.velocity.sub(impulse.clone().divideScalar(objB.physics.mass));
+              }
+              const penetrationDepth = radiusA + radiusB - distance;
+              const separationVector = normal.clone().multiplyScalar(penetrationDepth * 0.5);
+              objA.position.sub(separationVector);
+              if (!objB.physics.isStatic) {
+                objB.position.add(separationVector);
+              }
+            }
+          }
+        }
+      }
+
+      calculateTotalEnergy() {
+        let totalEnergy = 0;
+        for (const object of this.objects) {
+          if (object.physics && !object.physics.isStatic) {
+            const kineticEnergy = 0.5 * object.physics.mass * object.physics.velocity.lengthSq();
+            const potentialEnergy = object.physics.mass * this.constants.gravitationalConstant * object.position.y;
+            totalEnergy += kineticEnergy + potentialEnergy;
+          }
+        }
+        return totalEnergy;
+      }
+    }
+
+    // ------------------ Scene & Environment Setup ------------------
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.7, 5);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild(renderer.domElement);
+    const ambientLight = new THREE.AmbientLight(0x404040);
+    scene.add(ambientLight);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+    sunLight.position.set(10, 10, 10);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 50;
+    sunLight.shadow.camera.left = -20;
+    sunLight.shadow.camera.right = 20;
+    sunLight.shadow.camera.top = 20;
+    sunLight.shadow.camera.bottom = -20;
+    scene.add(sunLight);
+    const groundGeometry = new THREE.PlaneGeometry(100, 100);
+    const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x2e8b57, roughness: 0.8 });
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    ground.physics = { isStatic: true };
+    scene.add(ground);
+    function createWall(x, y, z, width, height, depth) {
+      const wallGeometry = new THREE.BoxGeometry(width, height, depth);
+      const wallMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa, roughness: 0.7 });
+      const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+      wall.position.set(x, y, z);
+      wall.castShadow = true;
+      wall.receiveShadow = true;
+      wall.physics = { isStatic: true };
+      scene.add(wall);
+      return wall;
+    }
+    createWall(0, 5, -25, 50, 10, 1);
+    createWall(0, 5, 25, 50, 10, 1);
+    createWall(25, 5, 0, 1, 10, 50);
+    createWall(-25, 5, 0, 1, 10, 50);
+    createWall(-10, 2, -10, 8, 0.5, 8);
+    createWall(10, 4, 8, 8, 0.5, 8);
+    createWall(0, 6, -5, 8, 0.5, 8);
+
+    // ------------------ PrimeEngine & Dynamic Objects ------------------
+    const primeEngine = new PrimeEngine(9.8);
+    function createSphere(x, y, z, radius, color, mass = 1) {
+      const geometry = new THREE.SphereGeometry(radius, 32, 32);
+      const material = new THREE.MeshStandardMaterial({ color: color, metalness: 0.3, roughness: 0.4 });
+      const sphere = new THREE.Mesh(geometry, material);
+      sphere.position.set(x, y, z);
+      sphere.castShadow = true;
+      sphere.receiveShadow = true;
+      sphere.physics = {
+        mass: mass,
+        velocity: new THREE.Vector3(0, 0, 0),
+        acceleration: new THREE.Vector3(0, 0, 0),
+        forces: new THREE.Vector3(0, 0, 0),
+        isStatic: false
+      };
+      scene.add(sphere);
+      primeEngine.addObject(sphere);
+      return sphere;
+    }
+    const spheres = [
+      createSphere(-5, 10, -5, 0.5, 0xff0000, 1),
+      createSphere(5, 15, 5, 0.5, 0x00ff00, 2),
+      createSphere(0, 20, 0, 0.5, 0x0000ff, 0.5),
+      createSphere(-8, 25, -8, 0.5, 0xffff00, 1),
+      createSphere(8, 30, 8, 0.5, 0xff00ff, 1)
+    ];
+    const primeSphere = createSphere(0, 40, 0, 1.0, 0xffffff, 7);
+    primeSphere.material.emissive = new THREE.Color(0x4444ff);
+    primeSphere.material.emissiveIntensity = 0.5;
+    const controls = new PointerLockControls(camera, document.body);
+    document.addEventListener('click', () => {
+      if (!controls.isLocked) controls.lock();
+    });
+
+    // ------------------ Player Physics Integration ------------------
+    // Define player movement settings
+    const playerSettings = { jumpForce: 10, speed: 10 };
+    // Create an invisible player collider that participates in physics
+    const playerColliderGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+    const playerColliderMaterial = new THREE.MeshBasicMaterial({ visible: false });
+    const playerCollider = new THREE.Mesh(playerColliderGeometry, playerColliderMaterial);
+    playerCollider.position.copy(camera.position);
+    playerCollider.physics = {
+      mass: 1,
+      velocity: new THREE.Vector3(),
+      acceleration: new THREE.Vector3(),
+      forces: new THREE.Vector3(),
+      isStatic: false,
+      // Prevent the engine from resetting forces on this object.
+      keepForces: true
+    };
+    scene.add(playerCollider);
+    primeEngine.addObject(playerCollider);
+
+    // Movement controls using window listeners
+    const keys = { forward: false, backward: false, left: false, right: false, jump: false };
+    window.addEventListener('keydown', (event) => {
+      switch (event.code) {
+        case 'KeyW': keys.forward = true; break;
+        case 'KeyS': keys.backward = true; break;
+        case 'KeyA': keys.left = true; break;
+        case 'KeyD': keys.right = true; break;
+        case 'Space': keys.jump = true; break;
+        case 'KeyR': resetObjects(); break;
+      }
+    });
+    window.addEventListener('keyup', (event) => {
+      switch (event.code) {
+        case 'KeyW': keys.forward = false; break;
+        case 'KeyS': keys.backward = false; break;
+        case 'KeyA': keys.left = false; break;
+        case 'KeyD': keys.right = false; break;
+        case 'Space': keys.jump = false; break;
+      }
+    });
+    function resetObjects() {
+      spheres[0].position.set(-5, 10, -5);
+      spheres[1].position.set(5, 15, 5);
+      spheres[2].position.set(0, 20, 0);
+      spheres[3].position.set(-8, 25, -8);
+      spheres[4].position.set(8, 30, 8);
+      primeSphere.position.set(0, 40, 0);
+      spheres.forEach(sphere => {
+        sphere.physics.velocity.set(0, 0, 0);
+        sphere.physics.forces.set(0, 0, 0);
+      });
+      primeSphere.physics.velocity.set(0, 0, 0);
+      primeSphere.physics.forces.set(0, 0, 0);
+    }
+
+    // Update the player collider forces based on input.
+    function updatePlayerPhysics(dt) {
+      // Only process input if pointer lock is active.
+      if (!controls.isLocked) return;
+
+      // Reset forces for the player collider (gravity is reapplied later if needed)
+      // We don't completely clear the forces because keepForces prevents the engine from overwriting.
+      playerCollider.physics.forces.set(0, 0, 0);
+      playerCollider.physics.forces.y -= 9.8 * playerCollider.physics.mass;
+
+      // Process movement input.
+      const moveDirection = new THREE.Vector3();
+      // 'W' moves forward and 'S' backward.
+      if (keys.forward) moveDirection.z += 1;
+      if (keys.backward) moveDirection.z -= 1;
+      if (keys.left) moveDirection.x -= 1;
+      if (keys.right) moveDirection.x += 1;
+
+      if (moveDirection.length() > 0) {
+        moveDirection.normalize();
+        const cameraDirection = new THREE.Vector3();
+        camera.getWorldDirection(cameraDirection);
+        cameraDirection.y = 0;
+        cameraDirection.normalize();
+        const cameraSide = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
+        const forwardMovement = cameraDirection.clone().multiplyScalar(moveDirection.z);
+        const sidewaysMovement = cameraSide.clone().multiplyScalar(moveDirection.x);
+        const movement = forwardMovement.add(sidewaysMovement).multiplyScalar(playerSettings.speed);
+        playerCollider.physics.forces.add(movement);
+      }
+
+      // Jump if near the ground (using collider radius as reference)
+      if (keys.jump && playerCollider.position.y <= 0.5 + 0.1) {
+        playerCollider.physics.forces.y += playerSettings.jumpForce * playerCollider.physics.mass;
+        keys.jump = false;
+      }
+    }
+
+    // ------------------ Animation Loop ------------------
+    const statsDisplay = document.getElementById('physics-stats');
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = 1 / 60;
+
+      // Update player forces based on key input
+      updatePlayerPhysics(dt);
+
+      // Update physics engine (includes all objects, including the player)
+      primeEngine.update();
+
+      // Sync camera with player collider (adding an eye offset)
+      camera.position.copy(playerCollider.position);
+      camera.position.y += 1.2;
+
+      statsDisplay.innerHTML = `
+        <div>Objects: ${primeEngine.stats.objectCount}</div>
+        <div>Collisions: ${primeEngine.stats.collisions}</div>
+        <div>Total Energy: ${primeEngine.stats.totalEnergy.toFixed(2)}</div>
+        <div>Player Pos: (${camera.position.x.toFixed(1)}, ${camera.position.y.toFixed(1)}, ${camera.position.z.toFixed(1)})</div>
+      `;
+
+      // Animate the prime sphere as before
+      primeSphere.material.emissiveIntensity = 0.3 + 0.2 * Math.sin(Date.now() * 0.001);
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+  </script>
+</body>
+</html>

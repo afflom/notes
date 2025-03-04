@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song of the Primes - Prime Framework Music Theory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --dark: #1e1b4b;
+            --light: #f3f4f6;
+            --text: #1f2937;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8fafc;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--primary);
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            margin: 1rem 0 0.5rem;
+            color: var(--secondary);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+        
+        .description {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .control-panel {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .player-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .playing-indicator {
+            font-weight: 600;
+            color: var(--accent);
+            height: 1.5rem;
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 150px;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--light);
+        }
+        
+        .visualization {
+            width: 100%;
+            height: 200px;
+            background-color: var(--dark);
+            border-radius: 10px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prime-circle {
+            position: absolute;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+        
+        .explorer {
+            background-color: #f0f4ff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .explorer-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        select, input {
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #d1d5db;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .axiom-section {
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .code-note {
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            flex-direction: column;
+        }
+        
+        .audio-permission {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .audio-permission h3 {
+            margin-bottom: 1rem;
+        }
+        
+        .debug-output {
+            background-color: #f1f5f9;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 100px;
+            overflow-y: auto;
+            color: #1f2937;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent);
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="audio-permission">
+            <h3>Song of the Primes</h3>
+            <p>This demonstration requires audio permission to work properly.</p>
+            <button id="startButton" class="btn" style="margin-top: 1rem;">Start Experience</button>
+        </div>
+    </div>
+
+    <header>
+        <h1>The Song of the Primes</h1>
+        <p class="subtitle">A Prime Framework Construction of Music Theory</p>
+    </header>
+    
+    <div class="container">
+        <div class="description">
+            <p>Experience how musical harmony emerges directly from the Prime Framework's mathematical structure. This interactive demonstration reveals the deep connection between prime numbers, musical harmony, and the four axioms of the Prime Framework.</p>
+        </div>
+        
+        <div class="control-panel">
+            <h2>Listen to the Song of the Primes</h2>
+            <p>This composition emerges naturally from the Prime Framework's axioms and the intrinsic properties of prime numbers. Use the controls below to experience the complete composition.</p>
+            
+            <div class="player-container">
+                <div id="visualization" class="visualization"></div>
+                <div id="playingStatus" class="playing-indicator"></div>
+                <div id="progressContainer" class="progress-bar" style="display: none;">
+                    <div id="progressBar" class="progress-fill"></div>
+                </div>
+                
+                <div class="btn-group">
+                    <button id="playFullSong" class="btn">Play Full Song</button>
+                    <button id="stopButton" class="btn btn-secondary">Stop</button>
+                </div>
+            </div>
+            
+            <h3>Experience Each Axiom</h3>
+            <p>Listen to how each of the four axioms manifests musically:</p>
+            
+            <div class="btn-group">
+                <button id="playAxiom1" class="btn btn-secondary">Reference Manifold</button>
+                <button id="playAxiom2" class="btn btn-secondary">Algebraic Fibers</button>
+                <button id="playAxiom3" class="btn btn-secondary">Symmetry Group</button>
+                <button id="playAxiom4" class="btn btn-secondary">Coherence</button>
+            </div>
+            
+            <div id="debugOutput" class="debug-output" style="display: none;"></div>
+        </div>
+        
+        <div class="explorer">
+            <h2>Prime Harmony Explorer</h2>
+            <p>Explore the harmonic relationships between specific prime numbers and hear how they create different levels of coherence.</p>
+            
+            <div class="explorer-controls">
+                <div class="form-group">
+                    <label for="prime1">First Prime</label>
+                    <select id="prime1">
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                        <option value="11">11</option>
+                        <option value="13">13</option>
+                        <option value="17">17</option>
+                        <option value="19">19</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="prime2">Second Prime</label>
+                    <select id="prime2">
+                        <option value="2">2</option>
+                        <option value="3" selected>3</option>
+                        <option value="5">5</option>
+                        <option value="7">7</option>
+                        <option value="11">11</option>
+                        <option value="13">13</option>
+                        <option value="17">17</option>
+                        <option value="19">19</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button id="exploreBtn" class="btn">Play Harmony</button>
+                </div>
+            </div>
+            
+            <div id="resultDisplay" class="result" style="display: none">
+                <h3>Harmonic Analysis</h3>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+        
+        <h2>The Prime Framework Construction of Music</h2>
+        
+        <div class="axiom-section">
+            <h3>Axiom 1: Reference Manifold</h3>
+            <p>In musical terms, the Reference Manifold represents the fundamental acoustic space - the continuous spectrum of frequencies in which musical sounds exist. Just as the manifold in the Prime Framework provides a geometric arena for mathematics, the frequency spectrum provides the foundation for all musical expression.</p>
+            <div class="code-note">
+                // Musical implementation of Reference Manifold<br>
+                // Base frequencies form the foundation upon which all musical structures are built<br>
+                const baseFrequency = 256; // Hz<br>
+                const primeToFrequency = (prime) => baseFrequency * (prime / 2);
+            </div>
+        </div>
+        
+        <div class="axiom-section">
+            <h3>Axiom 2: Algebraic Fibers</h3>
+            <p>At each point in the acoustic manifold, we find an Algebraic Fiber that encodes the harmonic structure of sound. These fibers represent how a fundamental frequency gives rise to overtones and harmonics. The overtone series (1f, 2f, 3f, 4f, 5f...) corresponds directly to the intrinsic embedding of natural numbers in the fiber algebra.</p>
+            <div class="code-note">
+                // Musical implementation of Algebraic Fibers<br>
+                // Creating chord structures based on prime relationships<br>
+                const createPrimeChord = (numPrimes) => {<br>
+                &nbsp;&nbsp;const primeSubset = primes.slice(0, numPrimes);<br>
+                &nbsp;&nbsp;return primeSubset.map(p => primeToFrequency(p));<br>
+                };
+            </div>
+        </div>
+        
+        <div class="axiom-section">
+            <h3>Axiom 3: Symmetry Group Action</h3>
+            <p>Musical transformations like transposition, inversion, and retrograde can be understood as symmetry operations in the Prime Framework. The key symmetries that preserve musical coherence form a group that acts on the musical manifold.</p>
+            <div class="code-note">
+                // Musical implementation of Symmetry Group Action<br>
+                // Transform intervals based on prime ratios (symmetry transformations)<br>
+                const baseNote = primeToFrequency(prime);<br>
+                const interval = primeToFrequency(nextPrime);<br>
+                // The relationship between these frequencies represents a symmetry transformation
+            </div>
+        </div>
+        
+        <div class="axiom-section">
+            <h3>Axiom 4: Coherence Inner Product</h3>
+            <p>The Coherence Inner Product explains why certain combinations of notes sound harmonious while others create dissonance. When musical frequencies form simple whole-number ratios (derived from prime relationships), they maximize coherence and minimize the perceptual "energy" required to process them.</p>
+            <div class="code-note">
+                // Musical implementation of Coherence Inner Product<br>
+                // Generate coherent harmonies based on prime factorization<br>
+                const coherenceValue = 1 / (prime1 * prime2); // Simplified coherence metric<br>
+                // Higher coherence values correspond to more harmonious sound relationships
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>The Song of the Primes: A Demonstration of the Prime Framework</p>
+        <p>© 2025 Universal Object Reference (UOR) Foundation</p>
+    </footer>
+
+    <script>
+        // Simple console log wrapper for debugging
+        const DEBUG = true;
+        
+        function log(message) {
+            if (DEBUG) {
+                console.log(`[SongOfPrimes] ${message}`);
+                const debugOutput = document.getElementById('debugOutput');
+                if (debugOutput) {
+                    debugOutput.style.display = 'block';
+                    const time = new Date().toLocaleTimeString();
+                    debugOutput.innerHTML += `<div>[${time}] ${message}</div>`;
+                    debugOutput.scrollTop = debugOutput.scrollHeight;
+                }
+            }
+        }
+        
+        // Wait until DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            log('DOM loaded, waiting for user interaction');
+            
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const startButton = document.getElementById('startButton');
+            
+            // User must click this button to start audio
+            startButton.addEventListener('click', async () => {
+                try {
+                    log('User clicked start button, loading audio system...');
+                    
+                    // Load Tone.js dynamically
+                    log('Loading Tone.js library...');
+                    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js');
+                    log('Tone.js loaded successfully');
+                    
+                    // Wait a moment to ensure Tone.js is fully initialized
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Start audio context
+                    log('Starting audio context...');
+                    await Tone.start();
+                    log('Audio context started');
+                    
+                    // Create the audio player
+                    const primePlayer = new PrimePlayer();
+                    await primePlayer.initialize();
+                    
+                    // Hide the overlay once everything is ready
+                    loadingOverlay.style.display = 'none';
+                    
+                    // Set up event listeners for user interaction
+                    document.getElementById('playFullSong').addEventListener('click', () => {
+                        log('User clicked Play Full Song');
+                        primePlayer.playFullSong();
+                    });
+                    
+                    document.getElementById('stopButton').addEventListener('click', () => {
+                        log('User clicked Stop');
+                        primePlayer.stop();
+                    });
+                    
+                    document.getElementById('playAxiom1').addEventListener('click', () => {
+                        log('User clicked Play Axiom 1');
+                        primePlayer.playAxiom(1);
+                    });
+                    
+                    document.getElementById('playAxiom2').addEventListener('click', () => {
+                        log('User clicked Play Axiom 2');
+                        primePlayer.playAxiom(2);
+                    });
+                    
+                    document.getElementById('playAxiom3').addEventListener('click', () => {
+                        log('User clicked Play Axiom 3');
+                        primePlayer.playAxiom(3);
+                    });
+                    
+                    document.getElementById('playAxiom4').addEventListener('click', () => {
+                        log('User clicked Play Axiom 4');
+                        primePlayer.playAxiom(4);
+                    });
+                    
+                    document.getElementById('exploreBtn').addEventListener('click', () => {
+                        const prime1 = parseInt(document.getElementById('prime1').value);
+                        const prime2 = parseInt(document.getElementById('prime2').value);
+                        log(`User exploring harmony between primes ${prime1} and ${prime2}`);
+                        
+                        const result = primePlayer.exploreHarmony(prime1, prime2);
+                        
+                        // Display result
+                        const resultElement = document.getElementById('resultContent');
+                        resultElement.innerHTML = `
+                            <p><strong>Primes:</strong> ${prime1} and ${prime2}</p>
+                            <p><strong>Frequencies:</strong> ${result.freq1.toFixed(2)} Hz and ${result.freq2.toFixed(2)} Hz</p>
+                            <p><strong>Ratio:</strong> ${prime1}:${prime2} = ${(prime1/prime2).toFixed(3)}</p>
+                            <p><strong>Coherence Value:</strong> ${result.coherence.toFixed(5)}</p>
+                            <p>${result.coherence > 0.05 ? '✓ High coherence - harmonious sound' : '△ Lower coherence - more complex relationship'}</p>
+                        `;
+                        
+                        document.getElementById('resultDisplay').style.display = 'block';
+                    });
+                    
+                    log('Setup complete, ready for interaction');
+                } catch (error) {
+                    console.error('Error initializing:', error);
+                    log(`Error: ${error.message}`);
+                    loadingOverlay.innerHTML = `
+                        <div class="audio-permission">
+                            <h3>Audio Error</h3>
+                            <p>There was an error initializing the audio system.</p>
+                            <p style="color: red; font-size: 0.9rem;">${error.message}</p>
+                            <button onclick="location.reload()" class="btn" style="margin-top: 1rem;">Try Again</button>
+                        </div>
+                    `;
+                }
+            });
+            
+            // Helper function to load scripts dynamically
+            function loadScript(url) {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = url;
+                    script.onload = resolve;
+                    script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
+                    document.head.appendChild(script);
+                });
+            }
+            
+            // PrimePlayer class - direct implementation with no fancy techniques
+            class PrimePlayer {
+                constructor() {
+                    this.primes = [2, 3, 5, 7, 11, 13, 17, 19];
+                    this.baseFrequency = 256; // Hz
+                    this.synth = null;
+                    this.isPlaying = false;
+                    this.fullSongMode = false;
+                    this.visualization = document.getElementById('visualization');
+                    this.statusElement = document.getElementById('playingStatus');
+                    this.progressContainer = document.getElementById('progressContainer');
+                    this.progressBar = document.getElementById('progressBar');
+                    this.circles = [];
+                    this.activeTimers = [];
+                }
+                
+                async initialize() {
+                    log('Initializing Prime Player...');
+                    try {
+                        // Create basic synth with reverb
+                        this.synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                        this.synth.set({
+                            volume: -6,
+                            envelope: {
+                                attack: 0.01,
+                                decay: 0.1,
+                                sustain: 0.5,
+                                release: 0.4
+                            }
+                        });
+                        
+                        // Add reverb
+                        const reverb = new Tone.Reverb(2.5).toDestination();
+                        await reverb.generate(); // Ensure reverb is generated before connecting
+                        this.synth.connect(reverb);
+                        
+                        // Create visualization circles
+                        this.createVisualization();
+                        
+                        log('Prime Player initialized successfully');
+                        return true;
+                    } catch (error) {
+                        log(`Error initializing Prime Player: ${error.message}`);
+                        return false;
+                    }
+                }
+                
+                createVisualization() {
+                    // Clear any existing
+                    this.visualization.innerHTML = '';
+                    this.circles = [];
+                    
+                    // Create circles for each prime
+                    this.primes.forEach((prime, index) => {
+                        const circle = document.createElement('div');
+                        circle.className = 'prime-circle';
+                        circle.style.width = `${prime * 8}px`;
+                        circle.style.height = `${prime * 8}px`;
+                        circle.style.backgroundColor = `hsla(${prime * 20}, 70%, 60%, 0.5)`;
+                        circle.style.boxShadow = `0 0 ${prime * 2}px hsla(${prime * 20}, 70%, 60%, 0.8)`;
+                        circle.style.left = `${(index + 1) * 10}%`;
+                        circle.style.top = '50%';
+                        circle.style.opacity = '0.4';
+                        
+                        this.visualization.appendChild(circle);
+                        this.circles.push(circle);
+                    });
+                    
+                    log('Visualization created');
+                }
+                
+                animateCircle(index, intensity = 1) {
+                    if (index >= 0 && index < this.circles.length) {
+                        const circle = this.circles[index];
+                        circle.style.opacity = `${0.4 + (intensity * 0.6)}`;
+                        circle.style.transform = `translate(-50%, -50%) scale(${1 + (intensity * 0.3)})`;
+                        
+                        setTimeout(() => {
+                            if (circle) {
+                                circle.style.opacity = '0.4';
+                                circle.style.transform = 'translate(-50%, -50%) scale(1)';
+                            }
+                        }, 500);
+                    }
+                }
+                
+                setStatus(message) {
+                    if (this.statusElement) {
+                        this.statusElement.textContent = message;
+                    }
+                    log(message);
+                }
+                
+                primeToFrequency(prime) {
+                    return this.baseFrequency * (prime / 2);
+                }
+                
+                clearTimers() {
+                    // Clear all active timeouts
+                    this.activeTimers.forEach(timer => clearTimeout(timer));
+                    this.activeTimers = [];
+                }
+                
+                stop() {
+                    this.isPlaying = false;
+                    this.fullSongMode = false;
+                    this.clearTimers();
+                    
+                    // Stop all audio
+                    if (this.synth) {
+                        this.synth.releaseAll();
+                    }
+                    
+                    // Hide progress if showing
+                    this.progressContainer.style.display = 'none';
+                    
+                    this.setStatus('');
+                    log('Playback stopped');
+                }
+                
+                // Play individual axiom
+                playAxiom(axiomNumber) {
+                    if (this.isPlaying) {
+                        this.stop();
+                    }
+                    
+                    try {
+                        this.isPlaying = true;
+                        
+                        switch(axiomNumber) {
+                            case 1: // Reference Manifold
+                                this.setStatus('Playing: Reference Manifold (Axiom 1)');
+                                this.playReferenceManifold();
+                                break;
+                                
+                            case 2: // Algebraic Fibers
+                                this.setStatus('Playing: Algebraic Fibers (Axiom 2)');
+                                this.playAlgebraicFibers();
+                                break;
+                                
+                            case 3: // Symmetry Group
+                                this.setStatus('Playing: Symmetry Group (Axiom 3)');
+                                this.playSymmetryGroup();
+                                break;
+                                
+                            case 4: // Coherence
+                                this.setStatus('Playing: Coherence Inner Product (Axiom 4)');
+                                this.playCoherence();
+                                break;
+                                
+                            default:
+                                log(`Invalid axiom number: ${axiomNumber}`);
+                        }
+                    } catch (error) {
+                        log(`Error playing axiom ${axiomNumber}: ${error.message}`);
+                        this.stop();
+                    }
+                }
+                
+                // Reference Manifold (Axiom 1)
+                playReferenceManifold() {
+                    try {
+                        const now = Tone.now();
+                        const duration = 0.5;
+                        const gap = 0.6;
+                        
+                        // Simple sequence of prime-based frequencies
+                        this.synth.triggerAttackRelease(this.primeToFrequency(2), duration, now);
+                        this.animateCircle(0);
+                        
+                        const timer1 = setTimeout(() => {
+                            this.synth.triggerAttackRelease(this.primeToFrequency(3), duration);
+                            this.animateCircle(1);
+                        }, gap * 1000);
+                        this.activeTimers.push(timer1);
+                        
+                        const timer2 = setTimeout(() => {
+                            this.synth.triggerAttackRelease(this.primeToFrequency(5), duration);
+                            this.animateCircle(2);
+                        }, gap * 2 * 1000);
+                        this.activeTimers.push(timer2);
+                        
+                        const timer3 = setTimeout(() => {
+                            this.synth.triggerAttackRelease(this.primeToFrequency(2), duration);
+                            this.animateCircle(0);
+                        }, gap * 3 * 1000);
+                        this.activeTimers.push(timer3);
+                        
+                        // Reset status after playing - only if not full song mode
+                        if (!this.fullSongMode) {
+                            const timer4 = setTimeout(() => {
+                                if (this.isPlaying && this.statusElement.textContent === 'Playing: Reference Manifold (Axiom 1)') {
+                                    this.isPlaying = false;
+                                    this.setStatus('');
+                                }
+                            }, (gap * 3 + duration + 0.1) * 1000);
+                            this.activeTimers.push(timer4);
+                        }
+                        
+                        log('Reference Manifold played successfully');
+                    } catch (error) {
+                        log(`Error in playReferenceManifold: ${error.message}`);
+                        if (!this.fullSongMode) this.stop();
+                    }
+                }
+                
+                // Algebraic Fibers (Axiom 2)
+                playAlgebraicFibers() {
+                    try {
+                        const now = Tone.now();
+                        const duration = 1;
+                        const gap = 1.2;
+                        
+                        // Simple sequence of prime-based chords
+                        // Dyad (2 primes)
+                        const chord1 = [this.primeToFrequency(2), this.primeToFrequency(3)];
+                        this.synth.triggerAttackRelease(chord1, duration, now);
+                        this.animateCircle(0);
+                        this.animateCircle(1);
+                        
+                        // Triad (3 primes)
+                        const timer1 = setTimeout(() => {
+                            const chord2 = [this.primeToFrequency(2), this.primeToFrequency(3), this.primeToFrequency(5)];
+                            this.synth.triggerAttackRelease(chord2, duration);
+                            this.animateCircle(0);
+                            this.animateCircle(1);
+                            this.animateCircle(2);
+                        }, gap * 1000);
+                        this.activeTimers.push(timer1);
+                        
+                        // Tetrad (4 primes)
+                        const timer2 = setTimeout(() => {
+                            const chord3 = [this.primeToFrequency(2), this.primeToFrequency(3), 
+                                          this.primeToFrequency(5), this.primeToFrequency(7)];
+                            this.synth.triggerAttackRelease(chord3, duration);
+                            this.animateCircle(0);
+                            this.animateCircle(1);
+                            this.animateCircle(2);
+                            this.animateCircle(3);
+                        }, gap * 2 * 1000);
+                        this.activeTimers.push(timer2);
+                        
+                        // Reset status after playing - only if not full song mode
+                        if (!this.fullSongMode) {
+                            const timer3 = setTimeout(() => {
+                                if (this.isPlaying && this.statusElement.textContent === 'Playing: Algebraic Fibers (Axiom 2)') {
+                                    this.isPlaying = false;
+                                    this.setStatus('');
+                                }
+                            }, (gap * 2 + duration + 0.1) * 1000);
+                            this.activeTimers.push(timer3);
+                        }
+                        
+                        log('Algebraic Fibers played successfully');
+                    } catch (error) {
+                        log(`Error in playAlgebraicFibers: ${error.message}`);
+                        if (!this.fullSongMode) this.stop();
+                    }
+                }
+                
+                // Symmetry Group (Axiom 3)
+                playSymmetryGroup() {
+                    try {
+                        const now = Tone.now();
+                        const duration = 0.5;
+                        const gap = 0.6;
+                        
+                        // Simple sequence of prime-based intervals
+                        // 2:3 interval
+                        const interval1 = [this.primeToFrequency(2), this.primeToFrequency(3)];
+                        this.synth.triggerAttackRelease(interval1, duration, now);
+                        this.animateCircle(0);
+                        this.animateCircle(1);
+                        
+                        // 3:5 interval
+                        const timer1 = setTimeout(() => {
+                            const interval2 = [this.primeToFrequency(3), this.primeToFrequency(5)];
+                            this.synth.triggerAttackRelease(interval2, duration);
+                            this.animateCircle(1);
+                            this.animateCircle(2);
+                        }, gap * 1000);
+                        this.activeTimers.push(timer1);
+                        
+                        // 5:7 interval
+                        const timer2 = setTimeout(() => {
+                            const interval3 = [this.primeToFrequency(5), this.primeToFrequency(7)];
+                            this.synth.triggerAttackRelease(interval3, duration);
+                            this.animateCircle(2);
+                            this.animateCircle(3);
+                        }, gap * 2 * 1000);
+                        this.activeTimers.push(timer2);
+                        
+                        // 7:11 interval
+                        const timer3 = setTimeout(() => {
+                            const interval4 = [this.primeToFrequency(7), this.primeToFrequency(11)];
+                            this.synth.triggerAttackRelease(interval4, duration);
+                            this.animateCircle(3);
+                            this.animateCircle(4);
+                        }, gap * 3 * 1000);
+                        this.activeTimers.push(timer3);
+                        
+                        // Reset status after playing - only if not full song mode
+                        if (!this.fullSongMode) {
+                            const timer4 = setTimeout(() => {
+                                if (this.isPlaying && this.statusElement.textContent === 'Playing: Symmetry Group (Axiom 3)') {
+                                    this.isPlaying = false;
+                                    this.setStatus('');
+                                }
+                            }, (gap * 3 + duration + 0.1) * 1000);
+                            this.activeTimers.push(timer4);
+                        }
+                        
+                        log('Symmetry Group played successfully');
+                    } catch (error) {
+                        log(`Error in playSymmetryGroup: ${error.message}`);
+                        if (!this.fullSongMode) this.stop();
+                    }
+                }
+                
+                // Coherence (Axiom 4)
+                playCoherence() {
+                    try {
+                        const now = Tone.now();
+                        const duration = 1;
+                        const gap = 1.2;
+                        
+                        // Simple sequence of coherence-based chords
+                        
+                        // First chord: 2,3 (high coherence)
+                        const chord1 = [this.primeToFrequency(2), this.primeToFrequency(3)];
+                        this.synth.triggerAttackRelease(chord1, duration, now);
+                        this.animateCircle(0);
+                        this.animateCircle(1);
+                        
+                        // Second chord: 3,5 (medium-high coherence)
+                        const timer1 = setTimeout(() => {
+                            const chord2 = [this.primeToFrequency(3), this.primeToFrequency(5)];
+                            this.synth.triggerAttackRelease(chord2, duration);
+                            this.animateCircle(1);
+                            this.animateCircle(2);
+                        }, gap * 1000);
+                        this.activeTimers.push(timer1);
+                        
+                        // Third chord: 5,7,11 (medium coherence)
+                        const timer2 = setTimeout(() => {
+                            const chord3 = [this.primeToFrequency(5), this.primeToFrequency(7), this.primeToFrequency(11)];
+                            this.synth.triggerAttackRelease(chord3, duration);
+                            this.animateCircle(2);
+                            this.animateCircle(3);
+                            this.animateCircle(4);
+                        }, gap * 2 * 1000);
+                        this.activeTimers.push(timer2);
+                        
+                        // Reset status after playing - only if not full song mode
+                        if (!this.fullSongMode) {
+                            const timer3 = setTimeout(() => {
+                                if (this.isPlaying && this.statusElement.textContent === 'Playing: Coherence Inner Product (Axiom 4)') {
+                                    this.isPlaying = false;
+                                    this.setStatus('');
+                                }
+                            }, (gap * 2 + duration + 0.1) * 1000);
+                            this.activeTimers.push(timer3);
+                        }
+                        
+                        log('Coherence Inner Product played successfully');
+                    } catch (error) {
+                        log(`Error in playCoherence: ${error.message}`);
+                        if (!this.fullSongMode) this.stop();
+                    }
+                }
+                
+                // Finale
+                playFinale() {
+                    try {
+                        const now = Tone.now();
+                        const duration = 0.5;
+                        const gap = 0.3;
+                        
+                        // Play a sequence that combines elements from all axioms
+                        const sequence = [
+                            [this.primeToFrequency(2)],
+                            [this.primeToFrequency(3)],
+                            [this.primeToFrequency(2), this.primeToFrequency(3)],
+                            [this.primeToFrequency(5)],
+                            [this.primeToFrequency(3), this.primeToFrequency(5)],
+                            [this.primeToFrequency(2), this.primeToFrequency(5)],
+                            [this.primeToFrequency(2), this.primeToFrequency(3), this.primeToFrequency(5)],
+                            [this.primeToFrequency(7)],
+                            [this.primeToFrequency(3), this.primeToFrequency(7)],
+                            [this.primeToFrequency(2), this.primeToFrequency(3), this.primeToFrequency(5), this.primeToFrequency(7)]
+                        ];
+                        
+                        // Play each element in the sequence
+                        sequence.forEach((notes, index) => {
+                            const timer = setTimeout(() => {
+                                if (this.isPlaying) {
+                                    this.synth.triggerAttackRelease(notes, duration);
+                                    
+                                    // Animate circles
+                                    notes.forEach(note => {
+                                        const prime = Math.round(note / this.baseFrequency * 2);
+                                        const primeIndex = this.primes.indexOf(prime);
+                                        if (primeIndex >= 0) {
+                                            this.animateCircle(primeIndex, 1.2);
+                                        }
+                                    });
+                                }
+                            }, gap * index * 1000);
+                            this.activeTimers.push(timer);
+                        });
+                        
+                        // Final resolution chord
+                        const finalChord = [
+                            this.primeToFrequency(2),
+                            this.primeToFrequency(3),
+                            this.primeToFrequency(5),
+                            this.primeToFrequency(7),
+                            this.primeToFrequency(11)
+                        ];
+                        
+                        const finalTimer = setTimeout(() => {
+                            if (this.isPlaying) {
+                                this.synth.triggerAttackRelease(finalChord, duration * 3);
+                                
+                                for (let i = 0; i < 5; i++) {
+                                    this.animateCircle(i, 2);
+                                }
+                                this.setStatus('Resolution: Optimal Coherence State');
+                            }
+                        }, gap * (sequence.length + 1) * 1000);
+                        this.activeTimers.push(finalTimer);
+                        
+                        // End the song
+                        const endTimer = setTimeout(() => {
+                            if (this.isPlaying) {
+                                this.isPlaying = false;
+                                this.fullSongMode = false;
+                                this.setStatus('Song of the Primes complete');
+                                this.progressContainer.style.display = 'none';
+                                
+                                // Clear status after a moment
+                                setTimeout(() => this.setStatus(''), 2000);
+                            }
+                        }, (gap * (sequence.length + 1) + duration * 3 + 0.1) * 1000);
+                        this.activeTimers.push(endTimer);
+                        
+                        log('Finale played successfully');
+                    } catch (error) {
+                        log(`Error in playFinale: ${error.message}`);
+                        this.stop();
+                    }
+                }
+                
+                // Simplified direct full song implementation
+                playFullSong() {
+                    if (this.isPlaying) {
+                        this.stop();
+                    }
+                    
+                    try {
+                        this.isPlaying = true;
+                        this.fullSongMode = true;
+                        log('Starting full song playback');
+                        
+                        // Show and reset progress bar
+                        this.progressContainer.style.display = 'block';
+                        this.progressBar.style.width = '0%';
+                        
+                        // Total duration: approx 24 seconds
+                        const fullDuration = 24000;
+                        
+                        // Start progress animation
+                        const startTime = Date.now();
+                        const updateProgress = () => {
+                            if (!this.isPlaying) return;
+                            
+                            const elapsed = Date.now() - startTime;
+                            const percent = Math.min(100, (elapsed / fullDuration) * 100);
+                            this.progressBar.style.width = `${percent}%`;
+                            
+                            if (percent < 100 && this.isPlaying) {
+                                requestAnimationFrame(updateProgress);
+                            }
+                        };
+                        updateProgress();
+                        
+                        // Section 1: Reference Manifold
+                        this.setStatus('Playing: Reference Manifold (Axiom 1)');
+                        this.playReferenceManifold();
+                        
+                        // Section 2: Algebraic Fibers (after 5 seconds)
+                        const timer1 = setTimeout(() => {
+                            if (this.isPlaying && this.fullSongMode) {
+                                this.setStatus('Playing: Algebraic Fibers (Axiom 2)');
+                                this.playAlgebraicFibers();
+                            }
+                        }, 5000);
+                        this.activeTimers.push(timer1);
+                        
+                        // Section 3: Symmetry Group (after 10 seconds)
+                        const timer2 = setTimeout(() => {
+                            if (this.isPlaying && this.fullSongMode) {
+                                this.setStatus('Playing: Symmetry Group Action (Axiom 3)');
+                                this.playSymmetryGroup();
+                            }
+                        }, 10000);
+                        this.activeTimers.push(timer2);
+                        
+                        // Section 4: Coherence (after 15 seconds)
+                        const timer3 = setTimeout(() => {
+                            if (this.isPlaying && this.fullSongMode) {
+                                this.setStatus('Playing: Coherence Inner Product (Axiom 4)');
+                                this.playCoherence();
+                            }
+                        }, 15000);
+                        this.activeTimers.push(timer3);
+                        
+                        // Final section: Finale (after 20 seconds)
+                        const timer4 = setTimeout(() => {
+                            if (this.isPlaying && this.fullSongMode) {
+                                this.setStatus('Playing: Complete Song of the Primes (All Axioms)');
+                                this.playFinale();
+                            }
+                        }, 20000);
+                        this.activeTimers.push(timer4);
+                        
+                        log('Full song sequence started');
+                    } catch (error) {
+                        log(`Error in playFullSong: ${error.message}`);
+                        this.stop();
+                    }
+                }
+                
+                // Explore harmony between two primes
+                exploreHarmony(prime1, prime2) {
+                    try {
+                        const freq1 = this.primeToFrequency(prime1);
+                        const freq2 = this.primeToFrequency(prime2);
+                        const coherence = 1 / (prime1 * prime2); // Simplified coherence
+                        
+                        // Play the harmony
+                        this.synth.triggerAttackRelease([freq1, freq2], 2);
+                        
+                        // Animate circles
+                        const index1 = this.primes.indexOf(prime1);
+                        const index2 = this.primes.indexOf(prime2);
+                        if (index1 >= 0) this.animateCircle(index1);
+                        if (index2 >= 0) this.animateCircle(index2);
+                        
+                        log(`Harmony played: ${prime1}:${prime2}`);
+                        
+                        return { freq1, freq2, coherence };
+                    } catch (error) {
+                        log(`Error in exploreHarmony: ${error.message}`);
+                        return { freq1: 0, freq2: 0, coherence: 0 };
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
